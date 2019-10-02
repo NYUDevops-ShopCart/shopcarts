@@ -79,7 +79,7 @@ def index():
                   ), status.HTTP_200_OK
 
 ######################################################################
-# LIST ALL PETS
+# LIST ALL ITEMS IN ONE SHOP CART
 ######################################################################
 @app.route('/shopcart', methods=['GET'])
 def list_cart_iterms():
@@ -88,7 +88,7 @@ def list_cart_iterms():
 
 
 ######################################################################
-# RETRIEVE A PET
+# RETRIEVE AN ITEM
 ######################################################################
 @app.route('/shopcart/<int:item_id>', methods=['GET'])
 def get_cart_item(item_id):
