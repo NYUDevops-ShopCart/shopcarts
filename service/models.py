@@ -38,3 +38,14 @@ class Shopcart(db.model):
     price = db.Column(db.Double)
     text = db.Column(db.String(150))
     state = db.Column(db.Integer)
+
+    def delete(self):
+        ## Remove an item from the data store
+        Shopcart.logger.info('Deleting %s', self.id)
+        db.session.delete(self)
+        db.session.commit()
+
+    def find(cls, item_id):
+        ## Find a shopcard item by its id
+        cls.logger.info("Look up %s", item_id)
+        return cls.query.get(item_id)
