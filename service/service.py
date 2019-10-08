@@ -8,7 +8,7 @@ from werkzeug.exceptions import NotFound
 # SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Pet, DataValidationError
+from service.models import Shopcart, DataValidationError
 
 # Import Flask application
 from . import app
@@ -84,7 +84,8 @@ def index():
 @app.route('/shopcart', methods=['GET'])
 def list_cart_iterms():
     """ Returns list of all of the shop cart items"""
-    return make_response(status.HTTP_200_OK)
+    data = Shopcart.all()
+    return make_response(jsonify(data), status.HTTP_200_OK)
 
 
 ######################################################################
@@ -126,7 +127,7 @@ def update_cart_item(item_id):
 ######################################################################
 # DELETE A SHOPCART ITEM
 ######################################################################
-@app.route('/shopcart/<int:item,_id>', methods=['DELETE'])
+@app.route('/shopcart/<int:item_id>', methods=['DELETE'])
 def delete_cart_item(item_id):
     """
     Delete an existing entry present in the shopcart
@@ -138,10 +139,10 @@ def delete_cart_item(item_id):
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
-#def init_db():
+def init_db():
     """ Initialies the SQLAlchemy app """
-#    global app
-#    Shopcart.init_db(app)
+    global app
+    Shopcart.init_db(app)
 
 def check_content_type(content_type):
     """ Checks that the media type is correct """
