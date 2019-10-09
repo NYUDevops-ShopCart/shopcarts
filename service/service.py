@@ -85,10 +85,10 @@ def index():
 def list_cart_iterms(customer_id):
     """ Returns list of all of the shop cart items"""
     app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
- 	items = []
- 	if customer_id:
-        items = Shopcart.find_by_category(category)
- 	results = [item.serialize() for item in items]
+    items = []
+    if customer_id:
+        items = Shopcart.find_by_customer_id(customer_id)
+    results = [item.serialize() for item in items]
     return make_response(jsonify(results),status.HTTP_200_OK)
 
 ######################################################################

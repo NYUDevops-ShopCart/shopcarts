@@ -59,6 +59,19 @@ class Shopcart(db.Model):
             db.session.add(self)
         db.session.commit()
 
+    def serialize(self):
+        """ 
+        Serializes a Pet into a dictionary 
+        
+        """
+        return {"id" : self.id,
+                "product_id": self.product_id,
+                "customer_id": self.customer_id,
+                "quantity": self.quantity,
+                "price": str(self.price),
+                "text": self.text,
+                "state": self.state}
+
     def deserialize(self, data):
         """
         Deserializes a shopcart from a dictionary
