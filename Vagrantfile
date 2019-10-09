@@ -68,9 +68,9 @@ Vagrant.configure(2) do |config|
   ######################################################################
   # docker run -d --name postgres -p 5432:5432 -v psql_data:/var/lib/postgresql/data postgres
   config.vm.provision :docker do |d|
-    d.pull_images "postgres:alpine"
-    d.run "postgres:alpine",
-       args: "-d --name postgres -p 5432:5432 -v psql_data:/var/lib/postgresql/data"
+    d.pull_images "mysql:5.7"
+    d.run "mysql:5.7",
+       args: "-d --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=shopcarts"
   end
 
 end
