@@ -38,6 +38,15 @@ class Shopcart(db.Model):
     text = db.Column(db.String(150))
     state = db.Column(db.Integer)
 
+    @classmethod
+    def find_by_customer_id(cls, customer_id):
+        """ Returns all items with the given customer_id
+        Args:
+            customer_id (Integer): the id of the customer of the shopcart you want to match
+        """
+        cls.logger.info('Processing customer_id query for %s ...', customer_id)
+        return cls.query.filter(cls.customer_id == customer_id)
+
     def __repr__(self):
         return '<Shopcart %r>' % (self.name)
 
@@ -49,6 +58,19 @@ class Shopcart(db.Model):
         if not self.id:
             db.session.add(self)
         db.session.commit()
+
+    def serialize(self):
+        """ 
+        Serializes a Pet into a dictionary 
+        
+        """
+        return {"id" : self.id,
+                "product_id": self.product_id,
+                "customer_id": self.customer_id,
+                "quantity": self.quantity,
+                "price": str(self.price),
+                "text": self.text,
+                "state": self.state}
 
     def deserialize(self, data):
         """

@@ -79,14 +79,17 @@ def index():
                   ), status.HTTP_200_OK
 
 ######################################################################
-# LIST ALL ITEMS IN ONE SHOP CART
+# LIST ALL ITEMS IN ONE SHOP CART ---
 ######################################################################
-@app.route('/shopcart', methods=['GET'])
-def list_cart_iterms():
+@app.route('/shopcart/<int:customer_id>', methods=['GET'])
+def list_cart_iterms(customer_id):
     """ Returns list of all of the shop cart items"""
-    data = Shopcart.all()
-    return make_response(jsonify(data), status.HTTP_200_OK)
-
+    app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
+    items = []
+    if customer_id:
+        items = Shopcart.find_by_customer_id(customer_id)
+    results = [item.serialize() for item in items]
+    return make_response(jsonify(results),status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE AN ITEM
@@ -110,6 +113,7 @@ def create_cart_item():
     """
     app.logger.info('Request to create shopcart item')
     return make_response(status.HTTP_200_OK)
+
 
 
 ######################################################################
