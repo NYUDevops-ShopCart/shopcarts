@@ -61,6 +61,8 @@ class Shopcart(db.Model):
             self.quantity = data['quantity']
             self.price = data['price']
             self.text = data['text']
+            self.product_id = data['product_id']
+            self.customer_id = data['customer_id']
         except KeyError as error:
             raise DataValidationError('Invalid shopcart item: missing ' + error.args[0])
         except TypeError as error:
