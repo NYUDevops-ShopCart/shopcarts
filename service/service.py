@@ -81,7 +81,7 @@ def index():
 ######################################################################
 # LIST ALL ITEMS IN ONE SHOP CART ---
 ######################################################################
-@app.route('/shopcart/<int:customer_id>', methods=['GET'])
+@app.route('/shopcarts/<int:customer_id>', methods=['GET'])
 def list_cart_iterms(customer_id):
     """ Returns list of all of the shop cart items"""
     app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
@@ -94,7 +94,7 @@ def list_cart_iterms(customer_id):
 ######################################################################
 # Query A SHOPCART ITEM
 ######################################################################
-@app.route('/shopcart/query/<int:customer_id>/<int:target_price>', methods=['GET'])
+@app.route('/shopcarts/query/<int:customer_id>/<int:target_price>', methods=['GET'])
 def query_cart_iterms(customer_id,target_price):
     """ Returns items of the shop cart items that are below the target price """
     app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
