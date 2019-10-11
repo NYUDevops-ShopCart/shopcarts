@@ -115,7 +115,7 @@ class Shopcart(db.Model):
         db.session.commit()
 
     @classmethod
-    def find(cls, product_id):
+    def find_by_product_id(cls, product_id):
         ## Find a shopcard item by its id
         cls.logger.info("Look up %s", product_id)
         return cls.query.get(product_id) 

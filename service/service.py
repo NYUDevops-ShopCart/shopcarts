@@ -138,7 +138,7 @@ def delete_cart_item(item_id):
     if cart_item:
     	cart_item.delete()
     # should return 204 whether item is found or not found as discussed in class 
-    return make_response('', status.HTTP_204_NO_CONTENT)
+    return make_response('Item Deleted', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
