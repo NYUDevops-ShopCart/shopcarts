@@ -8,7 +8,7 @@ from werkzeug.exceptions import NotFound
 # SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Pet, DataValidationError
+from service.models import Shopcart, DataValidationError
 
 # Import Flask application
 from . import app
@@ -79,13 +79,17 @@ def index():
                   ), status.HTTP_200_OK
 
 ######################################################################
-# LIST ALL ITEMS IN ONE SHOP CART
+# LIST ALL ITEMS IN ONE SHOP CART ---
 ######################################################################
-@app.route('/shopcart', methods=['GET'])
-def list_cart_iterms():
+@app.route('/shopcart/<int:customer_id>', methods=['GET'])
+def list_cart_iterms(customer_id):
     """ Returns list of all of the shop cart items"""
-    return make_response(status.HTTP_200_OK)
-
+    app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
+    items = []
+    if customer_id:
+        items = Shopcart.find_by_customer_id(customer_id)
+    results = [item.serialize() for item in items]
+    return make_response(jsonify(results),status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE AN ITEM
@@ -111,6 +115,7 @@ def create_cart_item():
     return make_response(status.HTTP_200_OK)
 
 
+
 ######################################################################
 # UPDATE AN EXISTING SHOPCART ITEM
 ######################################################################
@@ -126,7 +131,7 @@ def update_cart_item(item_id):
 ######################################################################
 # DELETE A SHOPCART ITEM
 ######################################################################
-@app.route('/shopcart/<int:item,_id>', methods=['DELETE'])
+@app.route('/shopcart/<int:item_id>', methods=['DELETE'])
 def delete_cart_item(item_id):
     app.logger.info('Request to delete an existing shopcart item with id: %s', item_id)
     cart_item = Shopcart.find(item_id)
@@ -139,10 +144,10 @@ def delete_cart_item(item_id):
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
-#def init_db():
+def init_db():
     """ Initialies the SQLAlchemy app """
-#    global app
-#    Shopcart.init_db(app)
+    global app
+    Shopcart.init_db(app)
 
 def check_content_type(content_type):
     """ Checks that the media type is correct """
