@@ -116,6 +116,6 @@ class Shopcart(db.Model):
 
     @classmethod
     def find_by_product_id(cls, product_id):
-        ## Find a shopcard item by its id
+        ## Find a shopcart item by its id
         cls.logger.info("Look up %s", product_id)
         return cls.query.get(product_id) 
