@@ -134,7 +134,7 @@ def update_cart_item(item_id):
 @app.route('/shopcart/<int:item_id>', methods=['DELETE'])
 def delete_cart_item(item_id):
     app.logger.info('Request to delete an existing shopcart item with id: %s', item_id)
-    cart_item = Shopcart.find(item_id)
+    cart_item = Shopcart.find_by_customer_id(item_id)
     if cart_item:
     	cart_item.delete()
     # should return 204 whether item is found or not found as discussed in class 
