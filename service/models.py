@@ -108,7 +108,6 @@ class Shopcart(db.Model):
         cls.logger.info('Get all shopcarts')
         return cls.query.all()
 
-    @classmethod
     def delete(self):
         ## Remove an item from the data store
         Shopcart.logger.info('Deleting %s', self.id)
