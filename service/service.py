@@ -75,7 +75,6 @@ def index():
     """ Root URL response """
     return jsonify(name='Shop cart service',
                    version='1.0',
-                   paths=url_for('list_pets', _external=True)
                   ), status.HTTP_200_OK
 
 ######################################################################
