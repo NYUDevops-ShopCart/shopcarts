@@ -107,3 +107,16 @@ class Shopcart(db.Model):
         """ Returns all of the Pets in the database """
         cls.logger.info('Get all shopcarts')
         return cls.query.all()
+
+    @classmethod
+    def delete(self):
+        ## Remove an item from the data store
+        Shopcart.logger.info('Deleting %s', self.id)
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def find(cls, product_id):
+        ## Find a shopcard item by its id
+        cls.logger.info("Look up %s", product_id)
+        return cls.query.get(product_id) 
