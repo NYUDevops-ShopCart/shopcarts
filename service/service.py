@@ -119,24 +119,31 @@ def create_cart_item():
 ######################################################################
 # UPDATE AN EXISTING SHOPCART ITEM
 ######################################################################
-@app.route('/shopcart/<int:item_id>', methods=['PUT'])
-def update_cart_item(item_id):
-    """
-    Update an existing item in the cart
-    """
-    app.logger.info('Request to update shopcart item with id: %s', item_id)
+@app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['PUT'])
+def update_cart_item(customer_id, product_id):
+    app.logger.info('Request to update shopcart item with customer_id: %s, product_id: %s', customer_id, product_id)
+    cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+    # if not cart_item:
+    #     abort(400, description="customer_id & product_id not found")
+
+    #item = cart_item[0]
+    #item.quantity += int(request.get_json()["quantity"])
+    #if item.quantity < 0:
+    #    item.quantity = 0
+    #item.save()
+
     return make_response(status.HTTP_200_OK)
 
 
 ######################################################################
 # DELETE A SHOPCART ITEM
 ######################################################################
-@app.route('/shopcart/<int:item_id>', methods=['DELETE'])
-def delete_cart_item(item_id):
+@app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['DELETE'])
+def delete_cart_item(customer_id, product_id):
     app.logger.info('Request to delete an existing shopcart item with id: %s', item_id)
-    cart_item = Shopcart.find_by_product_id(item_id)
-    if cart_item:
-    	cart_item.delete()
+    #cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+    #if cart_item:
+    #	cart_item.delete()
     # should return 204 whether item is found or not found as discussed in class 
     return make_response('Item Deleted', status.HTTP_204_NO_CONTENT)
 

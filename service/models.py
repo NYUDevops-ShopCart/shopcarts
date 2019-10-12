@@ -47,6 +47,15 @@ class Shopcart(db.Model):
         cls.logger.info('Processing customer_id query for %s ...', customer_id)
         return cls.query.filter(cls.customer_id == customer_id)
 
+    @classmethod
+    def find_by_customer_id_and_product_id(cls, customer_id, product_id):
+        """ Returns all items with the given customer_id
+        Args:
+            customer_id (Integer): the id of the customer of the shopcart you want to match
+        """
+        cls.logger.info('Processing find_by_customer_id_and_product_id for customer %s, product %s...', customer_id, product_id)
+        return cls.query.filter(cls.customer_id == customer_id, cls.product_id == product_id) 
+
     def __repr__(self):
         return '<Shopcart %r>' % (self.name)
 
