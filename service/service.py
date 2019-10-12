@@ -137,27 +137,32 @@ def create_cart_item():
 def update_cart_item(customer_id, product_id):
     app.logger.info('Request to update shopcart item with customer_id: %s, product_id: %s', customer_id, product_id)
     cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
-    # if not cart_item:
-    #     abort(400, description="customer_id & product_id not found")
+    if not cart_item:
+        app.logger.info("Customer id and product id for update have not been found")
+        return jsonify("customer id and product id for update have not been found"), status.HTTP_400_BAD_REQUEST
 
-    #item = cart_item[0]
-    #item.quantity += int(request.get_json()["quantity"])
-    #if item.quantity < 0:
-    #    item.quantity = 0
-    #item.save()
+    requested_quantity = int(request.get_json()["quantity"])
+    # bounds check
+    if requested_quantity < 0:
+        app.lgoger.info('Negative quantity requested')
+        return jsonify("Invalid quantity"), status.HTTP_400_BAD_REQUEST
 
-    return make_response(status.HTTP_200_OK)
+    # process to update the request
+    cart_item.quantity = requested_quantity 
+    cart_item.save()
+    app.logger.info('Quantity for customer id %s and product id %s has been updated', customer_id, product_id)
+    return jsonify(cart_item.serialize()), status.HTTP_200_OK
 
 
 ######################################################################
 # DELETE A SHOPCART ITEM
 ######################################################################
 @app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['DELETE'])
-def delete_cart_item(customer_id, product_id):
+def delete_cart_item(item_id):
     app.logger.info('Request to delete an existing shopcart item with id: %s', item_id)
-    #cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
-    #if cart_item:
-    #	cart_item.delete()
+    cart_item = Shopcart.find_by_product_id(item_id)
+    if cart_item:
+        cart_item.delete()
     # should return 204 whether item is found or not found as discussed in class 
     return make_response('Item Deleted', status.HTTP_204_NO_CONTENT)
 

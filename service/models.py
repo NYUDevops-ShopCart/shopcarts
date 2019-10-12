@@ -63,8 +63,8 @@ class Shopcart(db.Model):
         Args:
             customer_id (Integer): the id of the customer of the shopcart you want to match
         """
-        cls.logger.info('Processing find_by_customer_id_and_product_id for customer %s, product %s...', customer_id, product_id)
-        return cls.query.filter(cls.customer_id == customer_id, cls.product_id == product_id) 
+        cls.logger.info('Processing customer id and product id query for customer  %s, product %s...', customer_id, product_id)
+        return cls.query.filter((cls.customer_id == customer_id) & (cls.product_id == product_id)).first()
 
     def __repr__(self):
         return '<Shopcart %r>' % (self.name)
