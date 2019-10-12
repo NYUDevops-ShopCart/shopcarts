@@ -46,6 +46,16 @@ class Shopcart(db.Model):
         """
         cls.logger.info('Processing customer_id query for %s ...', customer_id)
         return cls.query.filter(cls.customer_id == customer_id)
+        
+    @classmethod
+    def query_by_target_price(cls, customer_id, price):
+        """ Returns all items with the given customer_id and below the price
+        Args:
+            customer_id (Integer): the id of the customer of the shopcart you want to match
+            price(Numeric): the price of the items that are set as target so all selected items are below that target
+        """
+        cls.logger.info('Processing customer query for %s and price query for %s...', customer_id, price)
+        return cls.query.filter((cls.customer_id == customer_id) & (cls.price <= price))
 
     @classmethod
     def find_by_customer_id_and_product_id(cls, customer_id, product_id):
