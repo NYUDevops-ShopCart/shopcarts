@@ -95,15 +95,16 @@ def index():
 ######################################################################
 # RETRIEVE AN ITEM
 ######################################################################
-@app.route('/shopcarts/<int:cart_id>', methods=['GET'])
-def get_cart_item(cart_id):
+@app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['GET'])
+def get_cart_item(customer_id, product_id):
     """
     Retrieve a single shop cart item
     """
-    app.logger.info('Request for shopcart item with id: %s', cart_id)
-    if cart_id:
-        item = Shopcart.find_by_cart_id(cart_id)[0]
-    return make_response(jsonify(item.serialize()),status.HTTP_200_OK)
+    app.logger.info('Request for shopcart item with customer %s, product %s...',customer_id, product_id)
+    item = find_by_customer_id_and_product_id(customer_id, product_id)
+    if item:
+        return make_response(jsonify(item.serialize()),status.HTTP_200_OK)
+    return make_response(jsonify({"error": " Product not in cart"}),status.HTTP_200_OK)
 
 
 ######################################################################
