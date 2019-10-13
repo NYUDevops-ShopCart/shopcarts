@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import requests
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from flask_api import status    # HTTP Status Codes
 from werkzeug.exceptions import NotFound
@@ -81,38 +82,57 @@ def index():
 ######################################################################
 # LIST ALL ITEMS IN ONE SHOP CART ---
 ######################################################################
-@app.route('/shopcart/<int:customer_id>', methods=['GET'])
-def list_cart_iterms(customer_id):
-    """ Returns list of all of the shop cart items"""
-    app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
-    items = []
-    if customer_id:
-        items = Shopcart.find_by_customer_id(customer_id)
-    results = [item.serialize() for item in items]
-    return make_response(jsonify(results),status.HTTP_200_OK)
+# @app.route('/shopcart/<int:customer_id>', methods=['GET'])
+# def list_cart_iterms(customer_id):
+#     """ Returns list of all of the shop cart items"""
+#     app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
+#     items = []
+#     if customer_id:
+#         items = Shopcart.find_by_customer_id(customer_id)
+#     results = [item.serialize() for item in items]
+#     return make_response(jsonify(results),status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE AN ITEM
 ######################################################################
-@app.route('/shopcart/<int:item_id>', methods=['GET'])
-def get_cart_item(item_id):
+@app.route('/shopcarts/<int:cart_id>', methods=['GET'])
+def get_cart_item(cart_id):
     """
     Retrieve a single shop cart item
     """
-    app.logger.info('Request for shopcart item with id: %s', item_id)
-    return make_response(status.HTTP_200_OK)
+    app.logger.info('Request for shopcart item with id: %s', cart_id)
+    if cart_id:
+        item = Shopcart.find_by_cart_id(cart_id)[0]
+    return make_response(jsonify(item.serialize()),status.HTTP_200_OK)
 
 
 ######################################################################
 # ADD A NEW ITEM TO THE SHOP CART
 ######################################################################
-@app.route('/shopcart', methods=['POST'])
-def create_cart_item():
+@app.route('/shopcarts/<int:customer_id>', methods=['POST'])
+def create_cart_item(customer_id):
     """
     Creates a new item entry for the cart
     """
-    app.logger.info('Request to create shopcart item')
-    return make_response(status.HTTP_200_OK)
+    app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
+    check_content_type('application/json')
+    # check if coustomer_id are the same
+    if not customer_id == request.get_json()['customer_id']: 
+        abort(400, description="coustomer id doesn't match")
+    product_id = request.get_json()['product_id']
+    shopcart = Shopcart()
+    # check if the item is already in this customer's cart
+    if Shopcart.check_cart_exist(customer_id, product_id):
+        url = url_for('update_cart_item', customer_id = customer_id, product_id = product_id)
+        return requests.put(url, json={'quantity': request.get_json()['quantity']})
+    shopcart.deserialize(request.get_json())
+    shopcart.save()
+    message = shopcart.serialize()
+    location_url = url_for('get_cart_item', cart_id=shopcart.id, _external=True)
+    return make_response(jsonify(message), status.HTTP_201_CREATED,
+                         {
+                             'Location': location_url
+                         })
 
 
 
