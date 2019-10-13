@@ -139,7 +139,7 @@ def update_cart_item(customer_id, product_id):
     cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
     if not cart_item:
         app.logger.info("Customer id and product id for update have not been found")
-        return jsonify("customer id and product id for update have not been found"), status.HTTP_400_BAD_REQUEST
+        return jsonify("Customer id and product id for update have not been found"), status.HTTP_400_BAD_REQUEST
 
     requested_quantity = int(request.get_json()["quantity"])
     # bounds check
