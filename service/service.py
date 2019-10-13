@@ -143,7 +143,7 @@ def update_cart_item(customer_id, product_id):
 
     requested_quantity = int(request.get_json()["quantity"])
     # bounds check
-    if requested_quantity < 0:
+    if requested_quantity < 1:
         app.logger.info('Negative quantity requested')
         return jsonify("Invalid quantity"), status.HTTP_400_BAD_REQUEST
 
