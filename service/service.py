@@ -82,15 +82,15 @@ def index():
 ######################################################################
 # LIST ALL ITEMS IN ONE SHOP CART ---
 ######################################################################
-# @app.route('/shopcart/<int:customer_id>', methods=['GET'])
-# def list_cart_iterms(customer_id):
-#     """ Returns list of all of the shop cart items"""
-#     app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
-#     items = []
-#     if customer_id:
-#         items = Shopcart.find_by_customer_id(customer_id)
-#     results = [item.serialize() for item in items]
-#     return make_response(jsonify(results),status.HTTP_200_OK)
+@app.route('/shopcart/<int:customer_id>', methods=['GET'])
+def list_cart_iterms(customer_id):
+    """ Returns list of all of the shop cart items"""
+    app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
+    items = []
+    if customer_id:
+        items = Shopcart.find_by_customer_id(customer_id)
+    results = [item.serialize() for item in items]
+    return make_response(jsonify(results),status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE AN ITEM
@@ -125,6 +125,7 @@ def create_cart_item(customer_id):
     # check if the item is already in this customer's cart
     if Shopcart.check_cart_exist(customer_id, product_id):
         url = url_for('update_cart_item', customer_id = customer_id, product_id = product_id)
+
         return requests.put(url, json={'quantity': request.get_json()['quantity']})
     shopcart.deserialize(request.get_json())
     shopcart.save()
