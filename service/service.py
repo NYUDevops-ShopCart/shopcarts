@@ -158,13 +158,16 @@ def update_cart_item(customer_id, product_id):
 # DELETE A SHOPCART ITEM
 ######################################################################
 @app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['DELETE'])
-def delete_cart_item(item_id):
-    app.logger.info('Request to delete an existing shopcart item with id: %s', item_id)
-    cart_item = Shopcart.find_by_product_id(item_id)
+def delete_cart_item(customer_id, product_id):
+    app.logger.info('Request to delete an existing shopcart item with customer id: %s and product_id: %s', customer_id, product_id)
+    cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+
     if cart_item:
+        app.logger.info('Found item with customer id and product id and it will be deleted')
         cart_item.delete()
+
     # should return 204 whether item is found or not found as discussed in class 
-    return make_response('Item Deleted', status.HTTP_204_NO_CONTENT)
+    return make_response(jsonify({'message': 'Item Deleted'}), status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
