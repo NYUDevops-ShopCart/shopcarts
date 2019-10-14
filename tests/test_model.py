@@ -73,3 +73,17 @@ class TestShopcart(unittest.TestCase):
         self.assertEqual(shopcart.price,"45.66")
         self.assertEqual(shopcart.text,"Headphones")
         self.assertEqual(shopcart.state,None)
+
+    def test_find_by_customer_id(self):
+        """ Find a shopcart by customer_id """
+        Shopcart(id=1, product_id=3, customer_id=10, quantity=2, price=5.0, text="pen", state=1).save()
+        Shopcart(id=2, product_id=4, customer_id=11, quantity=1, price=15.3, text="book", state=0).save()
+        shopcart = Shopcart.find_by_customer_id(11)
+        self.assertEqual(shopcart[0].id, 2)
+        self.assertEqual(shopcart[0].product_id, 4)
+        self.assertEqual(shopcart[0].customer_id, 11)
+        self.assertEqual(shopcart[0].quantity, 1)
+        self.assertEqual(shopcart[0].price, 15.3)
+        self.assertEqual(shopcart[0].text, "book")
+        self.assertEqual(shopcart[0].state, 0)
+

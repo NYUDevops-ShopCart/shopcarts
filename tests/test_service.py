@@ -58,3 +58,12 @@ class TestShopcartServer(unittest.TestCase):
             test_shopcart.id = new_shopcart['id']
             shopcarts.append(test_shopcart)
         return shopcarts
+
+    def test_list_cart_iterms(self, customer_id):
+        """ List items of a shopcart"""
+        self._create_shopcarts(5)
+        resp = self.app.get('/shopcarts/<int:customer_id>')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 5)
+    
