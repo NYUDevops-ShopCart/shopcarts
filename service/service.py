@@ -133,24 +133,36 @@ def create_cart_item():
 ######################################################################
 # UPDATE AN EXISTING SHOPCART ITEM
 ######################################################################
-@app.route('/shopcart/<int:item_id>', methods=['PUT'])
-def update_cart_item(item_id):
-    """
-    Update an existing item in the cart
-    """
-    app.logger.info('Request to update shopcart item with id: %s', item_id)
-    return make_response(status.HTTP_200_OK)
+@app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['PUT'])
+def update_cart_item(customer_id, product_id):
+    app.logger.info('Request to update shopcart item with customer_id: %s, product_id: %s', customer_id, product_id)
+    cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+    if not cart_item:
+        app.logger.info("Customer id and product id for update have not been found")
+        return jsonify({'message': "Customer id and product id for update have not been found"}), status.HTTP_400_BAD_REQUEST
+
+    requested_quantity = int(request.get_json()["quantity"])
+    # bounds check
+    if requested_quantity < 1:
+        app.logger.info('Negative quantity requested')
+        return jsonify({'message': "Invalid quantity"}), status.HTTP_400_BAD_REQUEST
+
+    # process to update the request
+    cart_item.quantity = requested_quantity 
+    cart_item.save()
+    app.logger.info('Quantity for customer id %s and product id %s has been updated', customer_id, product_id)
+    return make_response(jsonify(cart_item.serialize()), status.HTTP_200_OK)
 
 
 ######################################################################
 # DELETE A SHOPCART ITEM
 ######################################################################
-@app.route('/shopcart/<int:item_id>', methods=['DELETE'])
+@app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['DELETE'])
 def delete_cart_item(item_id):
     app.logger.info('Request to delete an existing shopcart item with id: %s', item_id)
     cart_item = Shopcart.find_by_product_id(item_id)
     if cart_item:
-    	cart_item.delete()
+        cart_item.delete()
     # should return 204 whether item is found or not found as discussed in class 
     return make_response('Item Deleted', status.HTTP_204_NO_CONTENT)
 
