@@ -192,6 +192,17 @@ def delete_cart_item(customer_id, product_id):
     return make_response(jsonify({'message': 'Item Deleted'}), status.HTTP_204_NO_CONTENT)
 
 ######################################################################
+# MOVE A SHOPCART ITEM TO CHECKOUT
+######################################################################
+@app.route('/shopcarts/checkout/<int:customer_id>/<int:product_id>', methods=['PUT'])
+def move_cart_item_to_checkout(customer_id,product_id):
+    app.logger.info('Request to move product with id %s for customer with id %s to checkout',product_id,customer_id)
+    cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id,product_id)
+
+    if cart_item is None:
+        app.logger.info("No product with id %s found for customer id %s",product_id,customer_id)
+        return make_response(jsonify(message='Invalid request params'),status.HTTP_400_BAD_REQUEST)
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
