@@ -17,7 +17,7 @@ DATABASE_URI = os.getenv('DATABASE_URI', 'mysql+pymysql://root:password@localhos
 #  T E S T   C A S E S
 ######################################################################
 class TestShopcart(unittest.TestCase):
-    """ Test Cases for Pets """
+    """ Shopcart Model Tests"""
 
     @classmethod
     def setUpClass(cls):
@@ -73,17 +73,49 @@ class TestShopcart(unittest.TestCase):
         self.assertEqual(shopcart.price,"45.66")
         self.assertEqual(shopcart.text,"Headphones")
         self.assertEqual(shopcart.state,None)
-
-    def test_find_by_customer_id(self):
+    
+    def test_find_by_customer_id_pos(self):
         """ Find a shopcart by customer_id """
-        Shopcart(id=1, product_id=3, customer_id=10, quantity=2, price=5.0, text="pen", state=1).save()
-        Shopcart(id=2, product_id=4, customer_id=11, quantity=1, price=15.3, text="book", state=0).save()
+        Shopcart(product_id=3, customer_id=10, quantity=2, price=5.0, text="pen", state=1).save()
+        Shopcart(product_id=4, customer_id=11, quantity=1, price=150.30, text="book", state=0).save()
+        Shopcart(product_id=5, customer_id=11, quantity=2, price=12.91, text="hat", state=1).save()
         shopcart = Shopcart.find_by_customer_id(11)
-        self.assertEqual(shopcart[0].id, 2)
+        self.assertEqual(shopcart.count(), 2)
         self.assertEqual(shopcart[0].product_id, 4)
         self.assertEqual(shopcart[0].customer_id, 11)
         self.assertEqual(shopcart[0].quantity, 1)
-        self.assertEqual(shopcart[0].price, 15.3)
+        self.assertEqual(float(shopcart[0].price), 150.30)
         self.assertEqual(shopcart[0].text, "book")
         self.assertEqual(shopcart[0].state, 0)
+        self.assertEqual(shopcart[1].product_id, 5)
+        self.assertEqual(shopcart[1].customer_id, 11)
+        self.assertEqual(shopcart[1].quantity, 2)
+        self.assertEqual(float(shopcart[1].price), 12.91)
+        self.assertEqual(shopcart[1].text, "hat")
+        self.assertEqual(shopcart[1].state, 1)
+    
+    def test_find_by_customer_id_neg(self):
+        """ Shouldn't find a shopcart by customer_id """
+        Shopcart(product_id=3, customer_id=10, quantity=2, price=5.0, text="pen", state=1).save()
+        shopcart = Shopcart.find_by_customer_id(11)
+        self.assertEqual(shopcart.count(), 0)
 
+    def test_query_by_target_price_pos(self):
+        """ Find a shopcart by customer_id """
+        Shopcart(product_id=4, customer_id=11, quantity=1, price=150.30, text="book", state=0).save()
+        Shopcart(product_id=5, customer_id=11, quantity=2, price=12.91, text="hat", state=1).save()
+        shopcart = Shopcart.query_by_target_price(11, 30)
+        self.assertEqual(shopcart.count(), 1)
+        self.assertEqual(shopcart[0].product_id, 5)
+        self.assertEqual(shopcart[0].customer_id, 11)
+        self.assertEqual(shopcart[0].quantity, 2)
+        self.assertEqual(float(shopcart[0].price), 12.91)
+        self.assertEqual(shopcart[0].text, "hat")
+        self.assertEqual(shopcart[0].state, 1)
+    
+    def test_query_by_target_price_neg(self):
+        """ Shouldn't find a shopcart by customer_id """
+        Shopcart(product_id=4, customer_id=11, quantity=1, price=150.30, text="book", state=0).save()
+        shopcart = Shopcart.query_by_target_price(10, 30)
+        self.assertEqual(shopcart.count(), 0)
+    

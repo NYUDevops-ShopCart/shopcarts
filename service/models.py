@@ -52,7 +52,7 @@ class Shopcart(db.Model):
 
     def serialize(self):
         """
-        Serializes a Pet into a dictionary
+        Serializes a Shopcart into a dictionary
 
         """
         return {"id" : self.id,
@@ -95,7 +95,7 @@ class Shopcart(db.Model):
 
     @classmethod
     def all(cls):
-        """ Returns all of the Pets in the database """
+        """ Returns all of the Shopcarts in the database """
         cls.logger.info('Get all shopcarts')
         return cls.query.all()
 

@@ -73,7 +73,7 @@ def internal_server_error(error):
 @app.route('/')
 def index():
     """ Root URL response """
-    return jsonify(name='Shop cart service',
+    return jsonify(text='Shop cart service',
                    version='1.0',
                   ), status.HTTP_200_OK
 
@@ -108,7 +108,7 @@ def query_cart_items(customer_id):
 ######################################################################
 # RETRIEVE AN ITEM
 ######################################################################
-@app.route('/shopcart/<int:item_id>', methods=['GET'])
+@app.route('/shopcarts/<int:item_id>', methods=['GET'])
 def get_cart_item(item_id):
     """
     Retrieve a single shop cart item
@@ -120,15 +120,13 @@ def get_cart_item(item_id):
 ######################################################################
 # ADD A NEW ITEM TO THE SHOP CART
 ######################################################################
-@app.route('/shopcart', methods=['POST'])
+@app.route('/shopcarts', methods=['POST'])
 def create_cart_item():
     """
     Creates a new item entry for the cart
     """
     app.logger.info('Request to create shopcart item')
     return make_response(status.HTTP_200_OK)
-
-
 
 ######################################################################
 # UPDATE AN EXISTING SHOPCART ITEM
