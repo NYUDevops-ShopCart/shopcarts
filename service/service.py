@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import requests
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from flask_api import status    # HTTP Status Codes
 from werkzeug.exceptions import NotFound
@@ -108,25 +109,48 @@ def query_cart_items(customer_id):
 ######################################################################
 # RETRIEVE AN ITEM
 ######################################################################
-@app.route('/shopcarts/<int:item_id>', methods=['GET'])
-def get_cart_item(item_id):
+@app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['GET'])
+def get_cart_item(customer_id, product_id):
+
     """
     Retrieve a single shop cart item
     """
-    app.logger.info('Request for shopcart item with id: %s', item_id)
-    return make_response(status.HTTP_200_OK)
+    app.logger.info('Request for shopcart item with customer %s, product %s...',customer_id, product_id)
+    item = find_by_customer_id_and_product_id(customer_id, product_id)
+    if item:
+        return make_response(jsonify(item.serialize()),status.HTTP_200_OK)
+    return make_response(jsonify({"error": " Product not in cart"}),status.HTTP_200_OK)
 
 
 ######################################################################
 # ADD A NEW ITEM TO THE SHOP CART
 ######################################################################
-@app.route('/shopcarts', methods=['POST'])
-def create_cart_item():
+@app.route('/shopcarts/<int:customer_id>', methods=['POST'])
+def create_cart_item(customer_id):
+
     """
     Creates a new item entry for the cart
     """
-    app.logger.info('Request to create shopcart item')
-    return make_response(status.HTTP_200_OK)
+    app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
+    check_content_type('application/json')
+    # check if coustomer_id are the same
+    if not customer_id == request.get_json()['customer_id']: 
+        abort(400, description="coustomer id doesn't match")
+    product_id = request.get_json()['product_id']
+    shopcart = Shopcart()
+    # check if the item is already in this customer's cart
+    if Shopcart.check_cart_exist(customer_id, product_id):
+        url = url_for('update_cart_item', customer_id = customer_id, product_id = product_id)
+
+        return requests.put(url, json={'quantity': request.get_json()['quantity']})
+    shopcart.deserialize(request.get_json())
+    shopcart.save()
+    message = shopcart.serialize()
+    location_url = url_for('get_cart_item', cart_id=shopcart.id, _external=True)
+    return make_response(jsonify(message), status.HTTP_201_CREATED,
+                         {
+                             'Location': location_url
+                         })
 
 ######################################################################
 # UPDATE AN EXISTING SHOPCART ITEM
