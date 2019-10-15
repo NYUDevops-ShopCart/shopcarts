@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 import requests
-from flask import Flask, jsonify, request, url_for, make_response, abort
+from flask import Flask, jsonify, request, url_for, make_response, abort, json
 from flask_api import status    # HTTP Status Codes
 from werkzeug.exceptions import NotFound
 
@@ -138,13 +138,19 @@ def create_cart_item(customer_id):
     shopcart = Shopcart()
     # check if the item is already in this customer's cart
     if Shopcart.check_cart_exist(customer_id, product_id):
-        url = url_for('update_cart_item', customer_id = customer_id, product_id = product_id)
-
-        return requests.put(url, json={'quantity': request.get_json()['quantity']})
+        url = url_for('update_cart_item', customer_id = customer_id, product_id = product_id, _external=True)
+        app.logger.info('let me see url: %s', url)
+        r = requests.put(url, json={'quantity': request.get_json()['quantity']})
+        data = json.loads(r.content)
+        location_url = url_for('get_cart_item', customer_id=customer_id, product_id = product_id, _external=True)
+        return make_response(jsonify(data), status.HTTP_200_OK,
+                         {
+                             'Location': location_url
+                         })
     shopcart.deserialize(request.get_json())
     shopcart.save()
     message = shopcart.serialize()
-    location_url = url_for('get_cart_item', cart_id=shopcart.id, _external=True)
+    location_url = url_for('get_cart_item', customer_id=shopcart.customer_id, product_id = shopcart.product_id, _external=True)
     return make_response(jsonify(message), status.HTTP_201_CREATED,
                          {
                              'Location': location_url
