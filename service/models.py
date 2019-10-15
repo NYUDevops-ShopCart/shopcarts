@@ -46,7 +46,25 @@ class Shopcart(db.Model):
         """
         cls.logger.info('Processing customer_id query for %s ...', customer_id)
         return cls.query.filter(cls.customer_id == customer_id)
-        
+    
+    @classmethod
+    def find_by_cart_id(cls, cart_id):
+        """ Returns a item with the given cart_id
+        Args:
+            cart_id (Integer): the id of the row of the shopcart you want to match
+        """
+        cls.logger.info('Processing cart_id query for %s ...', cart_id)
+        return cls.query.filter(cls.id == cart_id)
+
+    @classmethod
+    def check_cart_exist(cls, customer_id, product_id):
+        """ Returns boolean with the given customer_id, product_id
+        Args:
+            customer_id, product_id (Integer): the customer_id, product_id of the row of the shopcart you want to match
+        """
+        cls.logger.info('Processing cart_id query for customer %s, product %s...',customer_id, product_id)
+        return cls.query.filter(cls.customer_id == customer_id, cls.product_id == product_id).first()
+      
     @classmethod
     def query_by_target_price(cls, customer_id, price):
         """ Returns all items with the given customer_id and below the price
@@ -67,7 +85,7 @@ class Shopcart(db.Model):
         return cls.query.filter((cls.customer_id == customer_id) & (cls.product_id == product_id)).first()
 
     def __repr__(self):
-        return '<Shopcart %r>' % (self.name)
+        return '<Shopcart %r>' % (self.text)
 
     def save(self):
         """
