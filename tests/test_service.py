@@ -57,7 +57,8 @@ class TestShopcartServer(unittest.TestCase):
         shopcarts = []
         for _ in range(count):
             test_shopcart = ShopcartFactory()
-            resp = self.app.post('/shopcarts',
+
+            resp = self.app.post('/shopcarts/{}'.format(test_shopcart.customer_id),
                                  json=test_shopcart.serialize(),
                                  content_type='application/json')
             self.assertEqual(resp.status_code, status.HTTP_201_CREATED, 'Could not create test shopcart')
@@ -67,34 +68,31 @@ class TestShopcartServer(unittest.TestCase):
         return shopcarts
     
     def test_list_cart_iterms(self):
-        """ List items of a shopcart"""
-        '''
-        shopcarts = self._create_shopcarts(1)
-        url = '/shopcarts/' + str(shopcarts[0].customer_id)
-        resp = self.app.get(url)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-        self.assertEqual(len(data), 1)
-        '''
-        '''self._create_shopcarts(5)'''
-        shopcarts = self._create_shopcarts(1)
-        url = '/shopcarts' + str(shopcarts[0].customer_id)
-        resp = self.app.get(url)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-        self.assertEqual(len(data), 1)
-    '''
-    def test_query_cart_items(self):
-        """ Query shopcart by customer_id """
+        """ List all items of the shopcart for a customer"""
         shopcarts = self._create_shopcarts(10)
         test_customer_id = shopcarts[0].customer_id
         customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id]
-        resp = self.app.get('/shopcarts',
-                            query_string='customer_id={}'.format(test_customer_id))
+        resp = self.app.get('/shopcarts/{}'.format(test_customer_id))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(customer_id_shopcarts))
         # check the data to be sure
         for shopcart in data:
             self.assertEqual(shopcart['customer_id'], test_customer_id)
-    '''
+    
+    def test_query_cart_items(self):
+        """ Query shopcart by customer_id and show all items below the target price"""
+        shopcarts = self._create_shopcarts(5)
+        test_customer_id = shopcarts[0].customer_id
+        test_target_price = shopcarts[0].price
+        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id and shopcart.price <= test_customer_price]
+        resp = self.app.get('/shopcarts/query/{}'.format(test_customer_id),
+                            json='target_price':test_target_price,
+                            content_type= 'application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), len(customer_id_shopcarts))
+        # check the data to be sure
+        for shopcart in data:
+            self.assertTrue(shopcart.customer_id == test_customer_id & shopcart.price <= test_target_price)
+    
