@@ -71,7 +71,7 @@ class TestShopcartServer(unittest.TestCase):
     	# update the item
     	new_item = resp.get_json()
     	new_item['quantity'] = 9999
-    	resp = self.app.put('/shopcarts/{}'.format(new_item.customer_id) + '/{}'.format(new_item.product_id),
+    	resp = self.app.put('/shopcarts/{}/{}'.format(new_item['customer_id'],new_item['product_id']),
     						json= new_item,
     						content_type='application/json')
     	self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -82,11 +82,11 @@ class TestShopcartServer(unittest.TestCase):
     	""" Delete the item in the shopcart """
     	test_item = self._create_shopcarts(1)[0]
     	resp = self.app.delete('/shopcarts/{}'.format(test_item.customer_id) + '/{}'.format(test_item.product_id),
-    							json=test_item,
+    							json=test_item.serialize(),
     							content_type='applicatoin/json')
-    	self.assertEqual(resp.status_code, status_code.HTTP_204_NO_CONTENT)
+    	self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
     	self.assertEqual(len(resp.data), 0)
     	# make sure it is deleted 
     	resp = self.app.get('/shopcarts/{}'.format(test_item.customer_id) + '/{}'.format(test_item.product_id),
     							content_type='application/json')
-    	self.assertEqual(resp.status_code, status_code.HTTP_404_NOT_FOUND)
+    	self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
