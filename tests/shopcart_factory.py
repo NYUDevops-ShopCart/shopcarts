@@ -14,7 +14,7 @@ class ShopcartFactory(factory.Factory):
     quantity = factory.Sequence(lambda n: n)
     price = factory.Sequence(lambda n: n)
     text = factory.Faker('first_name')
-    state = FuzzyChoice(choices=[0,1,2])
+    state = FuzzyChoice(choices=[0])
 
 if __name__ == '__main__':
     for _ in range(10):

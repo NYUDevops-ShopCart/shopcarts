@@ -121,10 +121,20 @@ class TestShopcartServer(unittest.TestCase):
     	test_item = self._create_shopcarts(1)[0]
     	resp = self.app.delete('/shopcarts/{}'.format(test_item.customer_id) + '/{}'.format(test_item.product_id),
     							json=test_item.serialize(),
-    							content_type='applicatoin/json')
+    							content_type='application/json')
     	self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
     	self.assertEqual(len(resp.data), 0)
     	# make sure it is deleted 
     	resp = self.app.get('/shopcarts/{}'.format(test_item.customer_id) + '/{}'.format(test_item.product_id),
     							content_type='application/json')
     	self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_checkout_shopcart(self):
+        """ Checkout item in shopcart to order stage """
+        shopcart_item = self._create_shopcarts(1)[0]
+        self.assertEqual(shopcart_item.state,0)
+        resp = self.app.put('/shopcarts/checkout/{}/{}'.format(shopcart_item.customer_id,shopcart_item.product_id),
+                                content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data= resp.get_json()
+        self.assertEqual(data['data']['state'],2)

@@ -20,6 +20,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
+SHOPCART_ITEM_STAGE = {"ADDED":0,"REMOVED":1,"DONE":2}
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
