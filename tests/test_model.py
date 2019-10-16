@@ -118,4 +118,19 @@ class TestShopcart(unittest.TestCase):
         Shopcart(product_id=4, customer_id=11, quantity=1, price=150.30, text="book", state=0).save()
         shopcart = Shopcart.query_by_target_price(10, 30)
         self.assertEqual(shopcart.count(), 0)
-    
+
+    def test_find_by_customer_id_and_product_id(self):
+    	""" Test find by customer id and product id """
+    	Shopcart(product_id= 1, customer_id= 1).save()
+    	item = Shopcart.find_by_customer_id_and_product_id(1, 1)
+    	self.assertEqual(item.customer_id, 1)
+    	self.assertEqual(item.product_id, 1)
+
+    def test_delete(self):
+    	""" Delete a item """
+    	item = Shopcart(product_id = 3, customer_id = 4)
+    	item.save()
+    	self.assertEqual(len(Shopcart.all()) , 1)
+    	# delete item and make sure it isn't in the database 
+    	item.delete()
+    	self.assertEqual(len(Shopcart.all()), 0)
