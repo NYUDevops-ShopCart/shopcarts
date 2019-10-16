@@ -86,8 +86,7 @@ def list_cart_iterms(customer_id):
     """ Returns list of all of the shop cart items"""
     app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
     items = []
-    if customer_id:
-        items = Shopcart.find_by_customer_id(customer_id)
+    items = Shopcart.find_by_customer_id(customer_id)
     results = [item.serialize() for item in items]
     return make_response(jsonify(results),status.HTTP_200_OK)
 
@@ -97,14 +96,12 @@ def list_cart_iterms(customer_id):
 @app.route('/shopcarts/query/<int:customer_id>', methods=['GET'])
 def query_cart_items(customer_id):
     """ Returns items of the shop cart items that are below the target price """
-    app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
+    app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
     target_price = float(request.get_json()["target_price"])
     items = []
-    if customer_id:
-        items = Shopcart.query_by_target_price(customer_id, target_price)
+    items = Shopcart.query_by_target_price(customer_id, target_price)
     results = [item.serialize() for item in items]
     return make_response(jsonify(results),status.HTTP_200_OK)
-
 
 ######################################################################
 # RETRIEVE AN ITEM

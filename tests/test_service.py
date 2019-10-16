@@ -11,6 +11,7 @@ import os
 import logging
 from flask_api import status    # HTTP Status Codes
 from unittest.mock import MagicMock, patch
+from flask import jsonify
 from service.models import Shopcart, DataValidationError, db
 from .shopcart_factory import ShopcartFactory
 from service.service import app, init_db, initialize_logging
@@ -78,21 +79,22 @@ class TestShopcartServer(unittest.TestCase):
         self.assertEqual(len(data), len(customer_id_shopcarts))
         # check the data to be sure
         for shopcart in data:
-            self.assertEqual(shopcart['customer_id'], test_customer_id)
+            self.assertTrue(shopcart['customer_id'] == test_customer_id)
     
     def test_query_cart_items(self):
         """ Query shopcart by customer_id and show all items below the target price"""
-        shopcarts = self._create_shopcarts(5)
+        shopcarts = self._create_shopcarts(10)
         test_customer_id = shopcarts[0].customer_id
         test_target_price = shopcarts[0].price
-        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id and shopcart.price <= test_customer_price]
+        query_params_dict = {}
+        query_params_dict['target_price']=str(test_target_price)
+        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id and shopcart.price <= test_target_price]
         resp = self.app.get('/shopcarts/query/{}'.format(test_customer_id),
-                            json='target_price':test_target_price,
+                            json=query_params_dict,
                             content_type= 'application/json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(customer_id_shopcarts))
         # check the data to be sure
         for shopcart in data:
-            self.assertTrue(shopcart.customer_id == test_customer_id & shopcart.price <= test_target_price)
+            self.assertTrue(shopcart['customer_id'] == test_customer_id and float(shopcart['price']) <= test_target_price)
     
