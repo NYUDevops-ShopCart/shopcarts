@@ -19,4 +19,4 @@ URL | Operation | Description
 - After the VM has been provisioned ssh into it using: `vagrant ssh`
 - cd into `/vagrant` using `cd /vagrant` and set init file path by using export FLASK_APP=service/__init__.py 
 - start the server using `flask run --host=0.0.0.0`
-- for testing use nosetests --verbosity 2 --with-spec --spec-color
+- for testing use nosetests

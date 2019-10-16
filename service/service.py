@@ -9,7 +9,7 @@ from werkzeug.exceptions import NotFound
 # SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Shopcart, DataValidationError,SHOPCART_ITEM_STAGE
+from service.models import Shopcart, DataValidationError, SHOPCART_ITEM_STAGE
 
 # Import Flask application
 from . import app
@@ -89,7 +89,7 @@ def list_cart_iterms(customer_id):
     items = []
     items = Shopcart.find_by_customer_id(customer_id)
     results = [item.serialize() for item in items]
-    return make_response(jsonify(results),status.HTTP_200_OK)
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
 # Query A SHOPCART ITEM
@@ -102,7 +102,7 @@ def query_cart_items(customer_id):
     items = []
     items = Shopcart.query_by_target_price(customer_id, target_price)
     results = [item.serialize() for item in items]
-    return make_response(jsonify(results),status.HTTP_200_OK)
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE AN ITEM
@@ -113,11 +113,11 @@ def get_cart_item(customer_id, product_id):
     """
     Retrieve a single shop cart item
     """
-    app.logger.info('Request for shopcart item with customer %s, product %s...',customer_id, product_id)
+    app.logger.info('Request for shopcart item with customer %s, product %s...', customer_id, product_id)
     item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
     if item:
-        return make_response(jsonify(item.serialize()),status.HTTP_200_OK)
-    return make_response(jsonify({"error": " Product not in cart"}),status.HTTP_404_NOT_FOUND)
+        return make_response(jsonify(item.serialize()), status.HTTP_200_OK)
+    return make_response(jsonify({"error": " Product not in cart"}), status.HTTP_404_NOT_FOUND)
 
 
 ######################################################################
@@ -132,18 +132,18 @@ def create_cart_item(customer_id):
     app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
     check_content_type('application/json')
     # check if coustomer_id are the same
-    if not customer_id == request.get_json()['customer_id']: 
+    if not customer_id == request.get_json()['customer_id']:
         abort(400, description="coustomer id doesn't match")
     product_id = request.get_json()['product_id']
     shopcart = Shopcart()
     # check if the item is already in this customer's cart
     if Shopcart.check_cart_exist(customer_id, product_id):
-        url = url_for('update_cart_item', customer_id = customer_id, product_id = product_id, _external=True)
+        url = url_for('update_cart_item', customer_id=customer_id, product_id=product_id, _external=True)
         app.logger.info('let me see url: %s', url)
-        r = update_cart_item(customer_id,product_id,int(request.get_json()['quantity']))
+        r = update_cart_item(customer_id, product_id, int(request.get_json()['quantity']))
         #r = requests.put(url, json={'quantity': request.get_json()['quantity']})
         #data = json.loads(r.content)
-        location_url = url_for('get_cart_item', customer_id=customer_id, product_id = product_id, _external=True)
+        location_url = url_for('get_cart_item', customer_id=customer_id, product_id=product_id, _external=True)
         return make_response(r.get_json(), status.HTTP_200_OK,
                          {
                              'Location': location_url
@@ -151,7 +151,7 @@ def create_cart_item(customer_id):
     shopcart.deserialize(request.get_json())
     shopcart.save()
     message = shopcart.serialize()
-    location_url = url_for('get_cart_item', customer_id=shopcart.customer_id, product_id = shopcart.product_id, _external=True)
+    location_url = url_for('get_cart_item', customer_id=shopcart.customer_id, product_id=shopcart.product_id, _external=True)
     return make_response(jsonify(message), status.HTTP_201_CREATED,
                          {
                              'Location': location_url
@@ -174,14 +174,11 @@ def update_cart_item(customer_id, product_id, requested_quantity=None):
         app.logger.info('Negative quantity requested')
         return jsonify({'message': "Invalid quantity"}), status.HTTP_400_BAD_REQUEST
     # process to update the request
-    cart_item.quantity = requested_quantity 
+    cart_item.quantity = requested_quantity
     cart_item.save()
     app.logger.info('Quantity for customer id %s and product id %s has been updated', customer_id, product_id)
     print("Yo")
     return make_response(cart_item.serialize(), status.HTTP_200_OK)
-
-    
-
 
 ######################################################################
 # DELETE A SHOPCART ITEM
@@ -194,21 +191,19 @@ def delete_cart_item(customer_id, product_id):
     if cart_item:
         app.logger.info('Found item with customer id and product id and it will be deleted')
         cart_item.delete()
-
-    # should return 204 whether item is found or not found as discussed in class 
+    # should return 204 whether item is found or not found as discussed in class
     return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 # MOVE A SHOPCART ITEM TO CHECKOUT
 ######################################################################
 @app.route('/shopcarts/checkout/<int:customer_id>/<int:product_id>', methods=['PUT'])
-def move_cart_item_to_checkout(customer_id,product_id):
-    app.logger.info('Request to move product with id %s for customer with id %s to checkout',product_id,customer_id)
-    cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id,product_id)
-
+def move_cart_item_to_checkout(customer_id, product_id):
+    app.logger.info('Request to move product with id %s for customer with id %s to checkout', product_id, customer_id)
+    cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
     if cart_item is None:
-        app.logger.info("No product with id %s found for customer id %s",product_id,customer_id)
-        return make_response(jsonify(message='Invalid request params'),status.HTTP_400_BAD_REQUEST)
+        app.logger.info("No product with id %s found for customer id %s", product_id, customer_id)
+        return make_response(jsonify(message='Invalid request params'), status.HTTP_400_BAD_REQUEST)
 
     try:
         post_url = "{}/orders".format(ORDER_HOST_URL)
@@ -217,16 +212,15 @@ def move_cart_item_to_checkout(customer_id,product_id):
         request_data['product_id'] = cart_item.product_id
         request_data['price'] = cart_item.price
         request_data['quantity'] = cart_item.quantity
-        response = requests.post(url=post_url,json=request_data)
-        app.logger.info("Product with id %s for customer id %s moved from shopcart to order",
-            cart_item.product_id,cart_item.customer_id)
+        response = requests.post(url=post_url, json=request_data)
+        app.logger.info("Product with id %s for customer id %s moved from shopcart to order", cart_item.product_id, cart_item.customer_id)
     except Exception as ex:
-        app.logger.error("Something went wrong while moving product from shopcart to order %s",ex)
+        app.logger.error("Something went wrong while moving product from shopcart to order %s", ex)
 
-    cart_item.state=SHOPCART_ITEM_STAGE['DONE']
+    cart_item.state = SHOPCART_ITEM_STAGE['DONE']
     cart_item.save()
-    app.logger.info('Shopcart with product id %s and customer id %s moved to checkout',product_id,customer_id)
-    return make_response(jsonify(message="Product moved to Order Successfully",data=cart_item.serialize()), status.HTTP_200_OK)
+    app.logger.info('Shopcart with product id %s and customer id %s moved to checkout', product_id, customer_id)
+    return make_response(jsonify(message="Product moved to Order Successfully", data=cart_item.serialize()), status.HTTP_200_OK)
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
