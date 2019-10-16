@@ -128,7 +128,7 @@ class Shopcart(db.Model):
     def find_by_product_id(cls, product_id):
         ## Find a shopcart item by its id
         cls.logger.info("Look up %s", product_id)
-        return cls.query.get(product_id)
+        return cls.query.filter(cls.product_id == product_id)
 
     @classmethod
     def find_by_customer_id(cls, customer_id):

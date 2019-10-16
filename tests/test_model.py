@@ -134,3 +134,30 @@ class TestShopcart(unittest.TestCase):
     	# delete item and make sure it isn't in the database 
     	item.delete()
     	self.assertEqual(len(Shopcart.all()), 0)
+
+    def test_find_by_cart_id_pos(self):
+        """ Test find a shopcart item by cart_id """
+        Shopcart(product_id=3, customer_id=10, quantity=2, price=5.0, text="pen", state=1).save()
+        Shopcart(product_id=4, customer_id=11, quantity=1, price=150.30, text="book", state=0).save()
+        shopcart = Shopcart.find_by_cart_id(2)
+        self.assertEqual(shopcart.count(), 1)
+        self.assertEqual(shopcart[0].product_id, 4)
+        self.assertEqual(shopcart[0].customer_id, 11)
+        self.assertEqual(shopcart[0].quantity, 1)
+        self.assertEqual(float(shopcart[0].price), 150.30)
+        self.assertEqual(shopcart[0].text, "book")
+        self.assertEqual(shopcart[0].state, 0)
+
+    def test_find_by_product_id_pos(self):
+        """ Test find a shopcart item by product_id """
+        Shopcart(product_id=3, customer_id=10, quantity=2, price=5.0, text="pen", state=1).save()
+        Shopcart(product_id=4, customer_id=11, quantity=1, price=150.30, text="book", state=0).save()
+        shopcart = Shopcart.find_by_product_id(4)
+        self.assertEqual(shopcart.count(), 1)
+        self.assertEqual(shopcart[0].product_id, 4)
+        self.assertEqual(shopcart[0].customer_id, 11)
+        self.assertEqual(shopcart[0].quantity, 1)
+        self.assertEqual(float(shopcart[0].price), 150.30)
+        self.assertEqual(shopcart[0].text, "book")
+        self.assertEqual(shopcart[0].state, 0)
+
