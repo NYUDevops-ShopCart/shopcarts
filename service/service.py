@@ -177,7 +177,6 @@ def update_cart_item(customer_id, product_id, requested_quantity=None):
     cart_item.quantity = requested_quantity
     cart_item.save()
     app.logger.info('Quantity for customer id %s and product id %s has been updated', customer_id, product_id)
-    print("Yo")
     return make_response(cart_item.serialize(), status.HTTP_200_OK)
 
 ######################################################################
