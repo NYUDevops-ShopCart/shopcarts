@@ -115,10 +115,10 @@ def get_cart_item(customer_id, product_id):
     Retrieve a single shop cart item
     """
     app.logger.info('Request for shopcart item with customer %s, product %s...',customer_id, product_id)
-    item = find_by_customer_id_and_product_id(customer_id, product_id)
+    item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
     if item:
         return make_response(jsonify(item.serialize()),status.HTTP_200_OK)
-    return make_response(jsonify({"error": " Product not in cart"}),status.HTTP_200_OK)
+    return make_response(jsonify({"error": " Product not in cart"}),status.HTTP_404_NOT_FOUND)
 
 
 ######################################################################
@@ -195,7 +195,7 @@ def delete_cart_item(customer_id, product_id):
         cart_item.delete()
 
     # should return 204 whether item is found or not found as discussed in class 
-    return make_response(jsonify({'message': 'Item Deleted'}), status.HTTP_204_NO_CONTENT)
+    return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
