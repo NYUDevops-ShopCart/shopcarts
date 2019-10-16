@@ -9,11 +9,12 @@ from werkzeug.exceptions import NotFound
 # SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Shopcart, DataValidationError
+from service.models import Shopcart, DataValidationError, SHOPCART_ITEM_STAGE
 
 # Import Flask application
 from . import app
 
+ORDER_HOST_URL = "http://localhost:1234"
 ######################################################################
 # Error Handlers
 ######################################################################
@@ -74,7 +75,7 @@ def internal_server_error(error):
 @app.route('/')
 def index():
     """ Root URL response """
-    return jsonify(name='Shop cart service',
+    return jsonify(text='Shop cart service',
                    version='1.0',
                   ), status.HTTP_200_OK
 
@@ -86,10 +87,9 @@ def list_cart_iterms(customer_id):
     """ Returns list of all of the shop cart items"""
     app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
     items = []
-    if customer_id:
-        items = Shopcart.find_by_customer_id(customer_id)
+    items = Shopcart.find_by_customer_id(customer_id)
     results = [item.serialize() for item in items]
-    return make_response(jsonify(results),status.HTTP_200_OK)
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
 # Query A SHOPCART ITEM
@@ -97,28 +97,27 @@ def list_cart_iterms(customer_id):
 @app.route('/shopcarts/query/<int:customer_id>', methods=['GET'])
 def query_cart_items(customer_id):
     """ Returns items of the shop cart items that are below the target price """
-    app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
+    app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
     target_price = float(request.get_json()["target_price"])
     items = []
-    if customer_id:
-        items = Shopcart.query_by_target_price(customer_id, target_price)
+    items = Shopcart.query_by_target_price(customer_id, target_price)
     results = [item.serialize() for item in items]
-    return make_response(jsonify(results),status.HTTP_200_OK)
-
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE AN ITEM
 ######################################################################
 @app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['GET'])
 def get_cart_item(customer_id, product_id):
+
     """
     Retrieve a single shop cart item
     """
-    app.logger.info('Request for shopcart item with customer %s, product %s...',customer_id, product_id)
+    app.logger.info('Request for shopcart item with customer %s, product %s...', customer_id, product_id)
     item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
     if item:
-        return make_response(jsonify(item.serialize()),status.HTTP_200_OK)
-    return make_response(jsonify({"error": " Product not in cart"}),status.HTTP_404_NOT_FOUND)
+        return make_response(jsonify(item.serialize()), status.HTTP_200_OK)
+    return make_response(jsonify({"error": " Product not in cart"}), status.HTTP_404_NOT_FOUND)
 
 
 ######################################################################
@@ -126,6 +125,7 @@ def get_cart_item(customer_id, product_id):
 ######################################################################
 @app.route('/shopcarts/<int:customer_id>', methods=['POST'])
 def create_cart_item(customer_id):
+
     """
     Creates a new item entry for the cart
     """
@@ -150,31 +150,27 @@ def create_cart_item(customer_id):
                             'Location': location_url
                         })
 
-
-
 ######################################################################
 # UPDATE AN EXISTING SHOPCART ITEM
 ######################################################################
 @app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['PUT'])
-def update_cart_item(customer_id, product_id):
+def update_cart_item(customer_id, product_id, requested_quantity=None):
     app.logger.info('Request to update shopcart item with customer_id: %s, product_id: %s', customer_id, product_id)
     cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
     if not cart_item:
         app.logger.info("Customer id and product id for update have not been found")
         return jsonify({'message': "Customer id and product id for update have not been found"}), status.HTTP_400_BAD_REQUEST
-
-    requested_quantity = int(request.get_json()["quantity"])
+    if requested_quantity is None:
+        requested_quantity = int(request.get_json()["quantity"])
     # bounds check
     if requested_quantity < 1:
         app.logger.info('Negative quantity requested')
         return jsonify({'message': "Invalid quantity"}), status.HTTP_400_BAD_REQUEST
-
     # process to update the request
-    cart_item.quantity = requested_quantity 
+    cart_item.quantity = requested_quantity
     cart_item.save()
     app.logger.info('Quantity for customer id %s and product id %s has been updated', customer_id, product_id)
-    return make_response(jsonify(cart_item.serialize()), status.HTTP_200_OK)
-
+    return make_response(cart_item.serialize(), status.HTTP_200_OK)
 
 ######################################################################
 # DELETE A SHOPCART ITEM
@@ -187,10 +183,36 @@ def delete_cart_item(customer_id, product_id):
     if cart_item:
         app.logger.info('Found item with customer id and product id and it will be deleted')
         cart_item.delete()
-
-    # should return 204 whether item is found or not found as discussed in class 
+    # should return 204 whether item is found or not found as discussed in class
     return make_response('', status.HTTP_204_NO_CONTENT)
 
+######################################################################
+# MOVE A SHOPCART ITEM TO CHECKOUT
+######################################################################
+@app.route('/shopcarts/checkout/<int:customer_id>/<int:product_id>', methods=['PUT'])
+def move_cart_item_to_checkout(customer_id, product_id):
+    app.logger.info('Request to move product with id %s for customer with id %s to checkout', product_id, customer_id)
+    cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+    if cart_item is None:
+        app.logger.info("No product with id %s found for customer id %s", product_id, customer_id)
+        return make_response(jsonify(message='Invalid request params'), status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post_url = "{}/orders".format(ORDER_HOST_URL)
+        request_data = {}
+        request_data['customer_id'] = cart_item.customer_id
+        request_data['product_id'] = cart_item.product_id
+        request_data['price'] = cart_item.price
+        request_data['quantity'] = cart_item.quantity
+        response = requests.post(url=post_url, json=request_data)
+        app.logger.info("Product with id %s for customer id %s moved from shopcart to order", cart_item.product_id, cart_item.customer_id)
+    except Exception as ex:
+        app.logger.error("Something went wrong while moving product from shopcart to order %s", ex)
+
+    cart_item.state = SHOPCART_ITEM_STAGE['DONE']
+    cart_item.save()
+    app.logger.info('Shopcart with product id %s and customer id %s moved to checkout', product_id, customer_id)
+    return make_response(jsonify(message="Product moved to Order Successfully", data=cart_item.serialize()), status.HTTP_200_OK)
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
