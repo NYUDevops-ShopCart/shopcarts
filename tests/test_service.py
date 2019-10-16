@@ -97,6 +97,21 @@ class TestShopcartServer(unittest.TestCase):
         for shopcart in data:
             self.assertTrue(shopcart['customer_id'] == test_customer_id and float(shopcart['price']) <= test_target_price)
 
+    def test_get_cart_item_pos(self):
+        """ Retrieve a single shop cart item """
+        test_shopcart = self._create_shopcarts(1)[0]
+        resp = self.app.get('/shopcarts/{}/{}'.format(test_shopcart.customer_id, test_shopcart.product_id),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data['customer_id'], test_shopcart.customer_id)
+        self.assertEqual(data['product_id'], test_shopcart.product_id)
+
+    def test_get_cart_item_neg(self):
+        """ Get a single shop cart item that is not found """
+        resp = self.app.get('/shopcarts/0/0')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_update_shopcart(self):
     	""" Update the item in the shopcart """
     	# create an itme to update 
@@ -138,3 +153,17 @@ class TestShopcartServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data= resp.get_json()
         self.assertEqual(data['data']['state'],2)
+
+    @patch('service.models.Shopcart.find_by_customer_id')
+    def test_bad_request(self, bad_request_mock):
+        """ Test a Bad Request error from Find by Customer ID """
+        bad_request_mock.side_effect = DataValidationError()
+        resp = self.app.get('/shopcarts/{}'.format(1))
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    @patch('service.models.Shopcart.find_by_customer_id')
+    def test_mock_search_data(self, shopcart_find_by_customer_id_mock):
+        """ Test showing how to mock data """
+        shopcart_find_by_customer_id_mock.return_value = [MagicMock(serialize=lambda: {'customer_id': 1})]
+        resp = self.app.get('/shopcarts/{}'.format(1))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
