@@ -145,17 +145,53 @@ class TestShopcartServer(unittest.TestCase):
         self.assertEqual(new_item2['quantity'], 9999)
 
     def test_delete_shopcart(self):
-        """ Delete the item in the shopcart """
-        test_item = self._create_shopcarts(1)[0]
-        resp = self.app.delete('/shopcarts/{}'.format(test_item.customer_id) + '/{}'.format(test_item.product_id),
-                                json=test_item.serialize(),
-                                content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(len(resp.data), 0)
-        # make sure it is deleted
-        resp = self.app.get('/shopcarts/{}'.format(test_item.customer_id) + '/{}'.format(test_item.product_id),
-                                content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+    	""" Delete the item in the shopcart """
+    	test_item = self._create_shopcarts(1)[0]
+    	resp = self.app.delete('/shopcarts/{}'.format(test_item.customer_id) + '/{}'.format(test_item.product_id),
+    							json=test_item.serialize(),
+    							content_type='applicatoin/json')
+    	self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+    	self.assertEqual(len(resp.data), 0)
+    	# make sure it is deleted 
+    	resp = self.app.get('/shopcarts/{}'.format(test_item.customer_id) + '/{}'.format(test_item.product_id),
+    							content_type='application/json')
+    	self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_create_shopcart(self):
+        """ Create the item in the shopcart """
+        # create an item 
+        test_item = ShopcartFactory()
+        resp = self.app.post('/shopcarts/{}'.format(test_item.customer_id), json=test_item.serialize(), content_type='application/json')
+        print(test_item.quantity)
+        data = resp.get_json()
+        print(data)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED, 'Could not create shopcart entry')
+        self.assertEqual(data['customer_id'], test_item.customer_id, 'cutsomer_id not the same')
+        self.assertEqual(data['product_id'], test_item.product_id, 'product_id not the same')
+        self.assertEqual(data['quantity'], test_item.quantity, 'quantity not the same')
+        self.assertEqual(data['text'], test_item.text, 'text not the same')
+        test_item.quantity += 1
+        # create again to update item 
+        print(test_item.quantity)
+        resp = self.app.post('/shopcarts/{}'.format(test_item.customer_id), json=test_item.serialize(), content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+
+    def test_retrieve_shopcart(self):
+        """ Retrieve the item from the shopcart """
+        # create an item 
+        test_item = ShopcartFactory()
+        self.app.post('/shopcarts/{}'.format(test_item.customer_id),
+                            json=test_item.serialize(),
+                            content_type='application/json')
+        resp = self.app.get('/shopcarts/{}/{}'.format(test_item.customer_id, test_item.product_id))
+        data = resp.get_json()
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, 'Could not retrieve shopcart entry')
+        self.assertEqual(data['product_id'], test_item.product_id, 'Retrieved the wrong item')
+        self.assertEqual(data['customer_id'], test_item.customer_id, 'Retrieved the wrong item')
+        resp = self.app.get('/shopcarts/{}/{}'.format(-1, test_item.product_id))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND, 'Should not found anything')
+        resp = self.app.get('/shopcarts/{}/{}'.format(test_item.customer_id, -1))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND, 'Should not found anything')
 
     def test_checkout_shopcart(self):
         """ Checkout item in shopcart to order stage """
@@ -217,14 +253,3 @@ class TestShopcartServer(unittest.TestCase):
                             json=test_item.serialize(),
                             content_type='applicationnn/json')
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-    
-    def test_add_item_when_cart_already_exist(self):
-        """ Test add item when cart already exist for given product and customer id """
-        test_item = self._create_shopcarts(2)[1]
-        initial_quantity = test_item.quantity
-        resp = self.app.post('/shopcarts/{}'.format(test_item.customer_id),
-                            json=test_item.serialize(),
-                            content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        restponse_data = resp.get_json()
-        self.assertEqual(initial_quantity,restponse_data['quantity'])
