@@ -8,7 +8,7 @@ Test cases can be run with:
 import unittest
 import os
 from werkzeug.exceptions import NotFound
-from service.models import Shopcart, DataValidationError, db
+from service.models import Shopcart, DataValidationError, DB
 from service import app
 
 DATABASE_URI = os.getenv('DATABASE_URI', 'mysql+pymysql://root:password@localhost:3306/shopcarts')
@@ -32,12 +32,12 @@ class TestShopcart(unittest.TestCase):
 
     def setUp(self):
         Shopcart.init_db(app)
-        db.drop_all()    # clean up the last tests
-        db.create_all()  # make our sqlalchemy tables
+        DB.drop_all()    # clean up the last tests
+        DB.create_all()  # make our sqlalchemy tables
 
     def tearDown(self):
-        db.session.remove()
-        db.drop_all()
+        DB.session.remove()
+        DB.drop_all()
 
     def test_serialize_a_shopcart(self):
         """ Test serialization of a Shopcart """
