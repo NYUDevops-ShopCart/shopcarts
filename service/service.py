@@ -75,7 +75,7 @@ def internal_server_error(error):
 @app.route('/')
 def index():
     """ Root URL response """
-    return jsonify(name='Shop cart service',
+    return jsonify(text='Shop cart service',
                    version='1.0',
                   ), status.HTTP_200_OK
 
@@ -87,8 +87,7 @@ def list_cart_iterms(customer_id):
     """ Returns list of all of the shop cart items"""
     app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
     items = []
-    if customer_id:
-        items = Shopcart.find_by_customer_id(customer_id)
+    items = Shopcart.find_by_customer_id(customer_id)
     results = [item.serialize() for item in items]
     return make_response(jsonify(results),status.HTTP_200_OK)
 
@@ -98,28 +97,27 @@ def list_cart_iterms(customer_id):
 @app.route('/shopcarts/query/<int:customer_id>', methods=['GET'])
 def query_cart_items(customer_id):
     """ Returns items of the shop cart items that are below the target price """
-    app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
+    app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
     target_price = float(request.get_json()["target_price"])
     items = []
-    if customer_id:
-        items = Shopcart.query_by_target_price(customer_id, target_price)
+    items = Shopcart.query_by_target_price(customer_id, target_price)
     results = [item.serialize() for item in items]
     return make_response(jsonify(results),status.HTTP_200_OK)
-
 
 ######################################################################
 # RETRIEVE AN ITEM
 ######################################################################
 @app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['GET'])
 def get_cart_item(customer_id, product_id):
+
     """
     Retrieve a single shop cart item
     """
     app.logger.info('Request for shopcart item with customer %s, product %s...',customer_id, product_id)
-    item = find_by_customer_id_and_product_id(customer_id, product_id)
+    item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
     if item:
         return make_response(jsonify(item.serialize()),status.HTTP_200_OK)
-    return make_response(jsonify({"error": " Product not in cart"}),status.HTTP_200_OK)
+    return make_response(jsonify({"error": " Product not in cart"}),status.HTTP_404_NOT_FOUND)
 
 
 ######################################################################
@@ -127,6 +125,7 @@ def get_cart_item(customer_id, product_id):
 ######################################################################
 @app.route('/shopcarts/<int:customer_id>', methods=['POST'])
 def create_cart_item(customer_id):
+
     """
     Creates a new item entry for the cart
     """
@@ -156,8 +155,6 @@ def create_cart_item(customer_id):
                          {
                              'Location': location_url
                          })
-
-
 
 ######################################################################
 # UPDATE AN EXISTING SHOPCART ITEM
@@ -196,7 +193,7 @@ def delete_cart_item(customer_id, product_id):
         cart_item.delete()
 
     # should return 204 whether item is found or not found as discussed in class 
-    return make_response(jsonify({'message': 'Item Deleted'}), status.HTTP_204_NO_CONTENT)
+    return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 # MOVE A SHOPCART ITEM TO CHECKOUT

@@ -11,6 +11,7 @@ import os
 import logging
 from flask_api import status    # HTTP Status Codes
 from unittest.mock import MagicMock, patch
+from flask import jsonify
 from service.models import Shopcart, DataValidationError, db
 from .shopcart_factory import ShopcartFactory
 from service.service import app, init_db, initialize_logging
@@ -45,12 +46,19 @@ class TestShopcartServer(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
+    def test_index(self):
+        """ Test the Home Page """
+        resp = self.app.get('/')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data['text'], 'Shop cart service')
+
     def _create_shopcarts(self, count):
         """ Factory method to create shopcarts in bulk """
         shopcarts = []
         for _ in range(count):
             test_shopcart = ShopcartFactory()
-            resp = self.app.post('/shopcarts',
+            resp = self.app.post('/shopcarts/{}'.format(test_shopcart.customer_id),
                                  json=test_shopcart.serialize(),
                                  content_type='application/json')
             self.assertEqual(resp.status_code, status.HTTP_201_CREATED, 'Could not create test shopcart')
@@ -58,3 +66,65 @@ class TestShopcartServer(unittest.TestCase):
             test_shopcart.id = new_shopcart['id']
             shopcarts.append(test_shopcart)
         return shopcarts
+    
+    def test_list_cart_iterms(self):
+        """ List all items of the shopcart for a customer"""
+        shopcarts = self._create_shopcarts(10)
+        test_customer_id = shopcarts[0].customer_id
+        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id]
+        resp = self.app.get('/shopcarts/{}'.format(test_customer_id))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), len(customer_id_shopcarts))
+        # check the data to be sure
+        for shopcart in data:
+            self.assertTrue(shopcart['customer_id'] == test_customer_id)
+    
+    def test_query_cart_items(self):
+        """ Query shopcart by customer_id and show all items below the target price"""
+        shopcarts = self._create_shopcarts(10)
+        test_customer_id = shopcarts[0].customer_id
+        test_target_price = shopcarts[0].price
+        query_params_dict = {}
+        query_params_dict['target_price']=str(test_target_price)
+        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id and shopcart.price <= test_target_price]
+        resp = self.app.get('/shopcarts/query/{}'.format(test_customer_id),
+                            json=query_params_dict,
+                            content_type= 'application/json')
+        data = resp.get_json()
+        self.assertEqual(len(data), len(customer_id_shopcarts))
+        # check the data to be sure
+        for shopcart in data:
+            self.assertTrue(shopcart['customer_id'] == test_customer_id and float(shopcart['price']) <= test_target_price)
+
+    def test_update_shopcart(self):
+    	""" Update the item in the shopcart """
+    	# create an itme to update 
+    	test_item = ShopcartFactory()
+    	resp = self.app.post('/shopcarts/{}'.format(test_item.customer_id),
+                                 json=test_item.serialize(),
+                                 content_type='application/json')
+    	self.assertEqual(resp.status_code, status.HTTP_201_CREATED, 'Could not create shopcart entry')
+
+    	# update the item
+    	new_item = resp.get_json()
+    	new_item['quantity'] = 9999
+    	resp = self.app.put('/shopcarts/{}/{}'.format(new_item['customer_id'],new_item['product_id']),
+    						json= new_item,
+    						content_type='application/json')
+    	self.assertEqual(resp.status_code, status.HTTP_200_OK)
+    	updated_item = resp.get_json()
+    	self.assertEqual(updated_item['quantity'], 9999)
+
+    def test_delete_shopcart(self):
+    	""" Delete the item in the shopcart """
+    	test_item = self._create_shopcarts(1)[0]
+    	resp = self.app.delete('/shopcarts/{}'.format(test_item.customer_id) + '/{}'.format(test_item.product_id),
+    							json=test_item.serialize(),
+    							content_type='applicatoin/json')
+    	self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+    	self.assertEqual(len(resp.data), 0)
+    	# make sure it is deleted 
+    	resp = self.app.get('/shopcarts/{}'.format(test_item.customer_id) + '/{}'.format(test_item.product_id),
+    							content_type='application/json')
+    	self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
