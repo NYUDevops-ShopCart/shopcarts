@@ -140,10 +140,11 @@ def create_cart_item(customer_id):
     if Shopcart.check_cart_exist(customer_id, product_id):
         url = url_for('update_cart_item', customer_id = customer_id, product_id = product_id, _external=True)
         app.logger.info('let me see url: %s', url)
-        r = requests.put(url, json={'quantity': request.get_json()['quantity']})
-        data = json.loads(r.content)
+        r = update_cart_item(customer_id,product_id,int(request.get_json()['quantity']))
+        #r = requests.put(url, json={'quantity': request.get_json()['quantity']})
+        #data = json.loads(r.content)
         location_url = url_for('get_cart_item', customer_id=customer_id, product_id = product_id, _external=True)
-        return make_response(jsonify(data), status.HTTP_200_OK,
+        return make_response(r.get_json(), status.HTTP_200_OK,
                          {
                              'Location': location_url
                          })
@@ -160,24 +161,26 @@ def create_cart_item(customer_id):
 # UPDATE AN EXISTING SHOPCART ITEM
 ######################################################################
 @app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['PUT'])
-def update_cart_item(customer_id, product_id):
+def update_cart_item(customer_id, product_id, requested_quantity=None):
     app.logger.info('Request to update shopcart item with customer_id: %s, product_id: %s', customer_id, product_id)
     cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
     if not cart_item:
         app.logger.info("Customer id and product id for update have not been found")
         return jsonify({'message': "Customer id and product id for update have not been found"}), status.HTTP_400_BAD_REQUEST
-
-    requested_quantity = int(request.get_json()["quantity"])
+    if requested_quantity is None:
+        requested_quantity = int(request.get_json()["quantity"])
     # bounds check
     if requested_quantity < 1:
         app.logger.info('Negative quantity requested')
         return jsonify({'message': "Invalid quantity"}), status.HTTP_400_BAD_REQUEST
-
     # process to update the request
     cart_item.quantity = requested_quantity 
     cart_item.save()
     app.logger.info('Quantity for customer id %s and product id %s has been updated', customer_id, product_id)
-    return make_response(jsonify(cart_item.serialize()), status.HTTP_200_OK)
+    print("Yo")
+    return make_response(cart_item.serialize(), status.HTTP_200_OK)
+
+    
 
 
 ######################################################################
