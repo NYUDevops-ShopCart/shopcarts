@@ -133,35 +133,23 @@ def create_cart_item(customer_id):
     app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
     check_content_type('application/json')
     # check if coustomer_id are the same
-    if not customer_id == request.get_json()['customer_id']:
-        abort(400, description="coustomer id doesn't match")
+    if not customer_id == request.get_json()['customer_id']: 
+        # abort(400, description="coustomer id doesn't match")
+        return make_response("coustomer id doesn't match", status.HTTP_400_BAD_REQUEST)
     product_id = request.get_json()['product_id']
     shopcart = Shopcart()
     # check if the item is already in this customer's cart
     if Shopcart.check_cart_exist(customer_id, product_id):
-        url = url_for('update_cart_item',
-                      customer_id=customer_id, product_id=product_id, _external=True)
-        app.logger.info('let me see url: %s', url)
-        result = update_cart_item(customer_id, product_id, int(request.get_json()['quantity']))
-        #r = requests.put(url, json={'quantity': request.get_json()['quantity']})
-        #data = json.loads(r.content)
-        location_url = url_for('get_cart_item',
-                               customer_id=customer_id, product_id=product_id, _external=True)
-        return make_response(result.get_json(), status.HTTP_200_OK,
-                             {
-                                 'Location': location_url
-                             })
+        # abort(409, description="item already in the cart")
+        return make_response("item already in the cart", status.HTTP_409_CONFLICT)
     shopcart.deserialize(request.get_json())
     shopcart.save()
     message = shopcart.serialize()
-    location_url = url_for('get_cart_item',
-                           customer_id=shopcart.customer_id,
-                           product_id=shopcart.product_id,
-                           _external=True)
+    location_url = url_for('get_cart_item', customer_id=customer_id, product_id = product_id)
     return make_response(jsonify(message), status.HTTP_201_CREATED,
-                         {
-                             'Location': location_url
-                         })
+                        {
+                            'Location': location_url
+                        })
 
 ######################################################################
 # UPDATE AN EXISTING SHOPCART ITEM
