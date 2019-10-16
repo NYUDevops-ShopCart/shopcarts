@@ -12,7 +12,7 @@ import logging
 from flask_api import status    # HTTP Status Codes
 from unittest.mock import MagicMock, patch
 from flask import jsonify
-from service.models import Shopcart, DataValidationError, db
+from service.models import Shopcart, DataValidationError, DB
 from .shopcart_factory import ShopcartFactory
 from service.service import app, init_db, initialize_logging
 
@@ -38,13 +38,13 @@ class TestShopcartServer(unittest.TestCase):
     def setUp(self):
         """ Runs before each test """
         init_db()
-        db.drop_all()    # clean up the last tests
-        db.create_all()  # create new tables
+        DB.drop_all()    # clean up the last tests
+        DB.create_all()  # create new tables
         self.app = app.test_client()
 
     def tearDown(self):
-        db.session.remove()
-        db.drop_all()
+        DB.session.remove()
+        DB.drop_all()
 
     def test_index(self):
         """ Test the Home Page """

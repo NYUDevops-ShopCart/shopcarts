@@ -19,25 +19,25 @@ import logging
 from flask_sqlalchemy import SQLAlchemy
 
 # Create the SQLAlchemy object to be initialized later in init_db()
-db = SQLAlchemy()
+DB = SQLAlchemy()
 SHOPCART_ITEM_STAGE = {"ADDED":0, "REMOVED":1, "DONE":2}
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
     pass
 
-class Shopcart(db.Model):
+class Shopcart(DB.Model):
 
     logger = logging.getLogger('flask.app')
     app = None
     # Table Schema
-    id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer)
-    customer_id = db.Column(db.Integer)
-    quantity = db.Column(db.Integer)
-    price = db.Column(db.Numeric(10, 2))
-    text = db.Column(db.String(150))
-    state = db.Column(db.Integer)
+    id = DB.Column(DB.Integer, primary_key=True)
+    product_id = DB.Column(DB.Integer)
+    customer_id = DB.Column(DB.Integer)
+    quantity = DB.Column(DB.Integer)
+    price = DB.Column(DB.Numeric(10, 2))
+    text = DB.Column(DB.String(150))
+    state = DB.Column(DB.Integer)
 
     @classmethod
     def find_by_cart_id(cls, cart_id):
@@ -52,11 +52,13 @@ class Shopcart(db.Model):
     def check_cart_exist(cls, customer_id, product_id):
         """ Returns boolean with the given customer_id, product_id
         Args:
-            customer_id, product_id (Integer): the customer_id, product_id of the row of the shopcart you want to match
+            customer_id, product_id (Integer):
+            the customer_id, product_id of the row of the shopcart you want to match
         """
-        cls.logger.info('Processing cart_id query for customer %s, product %s...', customer_id, product_id)
+        cls.logger.info('Processing cart_id query for customer %s, product %s...',
+                        customer_id, product_id)
         return cls.query.filter(cls.customer_id == customer_id,
-         cls.product_id == product_id).first()
+                                cls.product_id == product_id).first()
 
     def __repr__(self):
         return '<Shopcart %r>' % (self.text)
@@ -67,8 +69,8 @@ class Shopcart(db.Model):
         """
         Shopcart.logger.info('Saving %s', self.text)
         if not self.id:
-            db.session.add(self)
-        db.session.commit()
+            DB.session.add(self)
+        DB.session.commit()
 
     def serialize(self):
         """
@@ -109,9 +111,9 @@ class Shopcart(db.Model):
         cls.logger.info('Initializing database')
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
-        db.init_app(app)
+        DB.init_app(app)
         app.app_context().push()
-        db.create_all()  # make our sqlalchemy tables
+        DB.create_all()  # make our sqlalchemy tables
 
     @classmethod
     def all(cls):
@@ -122,8 +124,8 @@ class Shopcart(db.Model):
     def delete(self):
         ## Remove an item from the data store
         Shopcart.logger.info('Deleting %s', self.id)
-        db.session.delete(self)
-        db.session.commit()
+        DB.session.delete(self)
+        DB.session.commit()
 
     @classmethod
     def find_by_product_id(cls, product_id):
@@ -146,8 +148,10 @@ class Shopcart(db.Model):
         Args:
             customer_id (Integer): the id of the customer of the shopcart you want to match
         """
-        cls.logger.info('Processing customer id and product id query for customer  %s, product %s...', customer_id, product_id)
-        return cls.query.filter((cls.customer_id == customer_id) & (cls.product_id == product_id)).first()
+        cls.logger.info('Processing customer_id & product_id query for customer %s, product %s...',
+                        customer_id, product_id)
+        return cls.query.filter((cls.customer_id == customer_id)
+                                & (cls.product_id == product_id)).first()
 
     @classmethod
     def query_by_target_price(cls, customer_id, price):
@@ -156,7 +160,9 @@ class Shopcart(db.Model):
             customer_id (Integer):
             the id of the customer of the shopcart you want to match
             price(Numeric):
-            the price of the items that are set as target so all selected items are below that target
+            the price of the items that are set as target,
+            so all selected items are below that target
         """
-        cls.logger.info('Processing customer query for %s and price query for %s...', customer_id, price)
+        cls.logger.info('Processing customer query for %s and price query for %s...',
+                        customer_id, price)
         return cls.query.filter((cls.customer_id == customer_id) & (cls.price <= price))
