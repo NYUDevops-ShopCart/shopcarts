@@ -39,15 +39,6 @@ class Shopcart(db.Model):
     state = db.Column(db.Integer)
 
     @classmethod
-    def find_by_customer_id(cls, customer_id):
-        """ Returns all items with the given customer_id
-        Args:
-            customer_id (Integer): the id of the customer of the shopcart you want to match
-        """
-        cls.logger.info('Processing customer_id query for %s ...', customer_id)
-        return cls.query.filter(cls.customer_id == customer_id)
-    
-    @classmethod
     def find_by_cart_id(cls, cart_id):
         """ Returns a item with the given cart_id
         Args:
@@ -64,25 +55,6 @@ class Shopcart(db.Model):
         """
         cls.logger.info('Processing cart_id query for customer %s, product %s...',customer_id, product_id)
         return cls.query.filter(cls.customer_id == customer_id, cls.product_id == product_id).first()
-      
-    @classmethod
-    def query_by_target_price(cls, customer_id, price):
-        """ Returns all items with the given customer_id and below the price
-        Args:
-            customer_id (Integer): the id of the customer of the shopcart you want to match
-            price(Numeric): the price of the items that are set as target so all selected items are below that target
-        """
-        cls.logger.info('Processing customer query for %s and price query for %s...', customer_id, price)
-        return cls.query.filter((cls.customer_id == customer_id) & (cls.price <= price))
-
-    @classmethod
-    def find_by_customer_id_and_product_id(cls, customer_id, product_id):
-        """ Returns all items with the given customer_id
-        Args:
-            customer_id (Integer): the id of the customer of the shopcart you want to match
-        """
-        cls.logger.info('Processing customer id and product id query for customer  %s, product %s...', customer_id, product_id)
-        return cls.query.filter((cls.customer_id == customer_id) & (cls.product_id == product_id)).first()
 
     def __repr__(self):
         return '<Shopcart %r>' % (self.text)
@@ -97,9 +69,9 @@ class Shopcart(db.Model):
         db.session.commit()
 
     def serialize(self):
-        """ 
-        Serializes a Pet into a dictionary 
-        
+        """
+        Serializes a Shopcart into a dictionary
+
         """
         return {"id" : self.id,
                 "product_id": self.product_id,
@@ -141,7 +113,7 @@ class Shopcart(db.Model):
 
     @classmethod
     def all(cls):
-        """ Returns all of the Pets in the database """
+        """ Returns all of the Shopcarts in the database """
         cls.logger.info('Get all shopcarts')
         return cls.query.all()
 
@@ -155,4 +127,32 @@ class Shopcart(db.Model):
     def find_by_product_id(cls, product_id):
         ## Find a shopcart item by its id
         cls.logger.info("Look up %s", product_id)
-        return cls.query.get(product_id) 
+        return cls.query.get(product_id)
+
+    @classmethod
+    def find_by_customer_id(cls, customer_id):
+        """ Returns all items with the given customer_id
+        Args:
+            customer_id (Integer): the id of the customer of the shopcart you want to match
+        """
+        cls.logger.info('Processing customer_id query for %s ...', customer_id)
+        return cls.query.filter(cls.customer_id == customer_id)
+
+    @classmethod
+    def find_by_customer_id_and_product_id(cls, customer_id, product_id):
+        """ Returns all items with the given customer_id
+        Args:
+            customer_id (Integer): the id of the customer of the shopcart you want to match
+        """
+        cls.logger.info('Processing customer id and product id query for customer  %s, product %s...', customer_id, product_id)
+        return cls.query.filter((cls.customer_id == customer_id) & (cls.product_id == product_id)).first()
+
+    @classmethod
+    def query_by_target_price(cls, customer_id, price):
+        """ Returns all items with the given customer_id and below the price
+        Args:
+            customer_id (Integer): the id of the customer of the shopcart you want to match
+            price(Numeric): the price of the items that are set as target so all selected items are below that target
+        """
+        cls.logger.info('Processing customer query for %s and price query for %s...', customer_id, price)
+        return cls.query.filter((cls.customer_id == customer_id) & (cls.price <= price))
