@@ -9,11 +9,12 @@ from werkzeug.exceptions import NotFound
 # SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Shopcart, DataValidationError
+from service.models import Shopcart, DataValidationError,SHOPCART_ITEM_STAGE
 
 # Import Flask application
 from . import app
 
+ORDER_HOST_URL = "http://localhost:1234"
 ######################################################################
 # Error Handlers
 ######################################################################
@@ -208,6 +209,24 @@ def move_cart_item_to_checkout(customer_id,product_id):
     if cart_item is None:
         app.logger.info("No product with id %s found for customer id %s",product_id,customer_id)
         return make_response(jsonify(message='Invalid request params'),status.HTTP_400_BAD_REQUEST)
+
+    try:
+        post_url = "{}/orders".format(ORDER_HOST_URL)
+        request_data = {}
+        request_data['customer_id'] = cart_item.customer_id
+        request_data['product_id'] = cart_item.product_id
+        request_data['price'] = cart_item.price
+        request_data['quantity'] = cart_item.quantity
+        response = requests.post(url=post_url,json=request_data)
+        app.logger.info("Product with id %s for customer id %s moved from shopcart to order",
+            cart_item.product_id,cart_item.customer_id)
+    except Exception as ex:
+        app.logger.error("Something went wrong while moving product from shopcart to order %s",ex)
+
+    cart_item.state=SHOPCART_ITEM_STAGE['DONE']
+    cart_item.save()
+    app.logger.info('Shopcart with product id %s and customer id %s moved to checkout',product_id,customer_id)
+    return make_response(jsonify(message="Product moved to Order Successfully"), status.HTTP_200_OK)
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
