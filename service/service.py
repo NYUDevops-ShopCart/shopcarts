@@ -223,7 +223,7 @@ def move_cart_item_to_checkout(customer_id,product_id):
     cart_item.state=SHOPCART_ITEM_STAGE['DONE']
     cart_item.save()
     app.logger.info('Shopcart with product id %s and customer id %s moved to checkout',product_id,customer_id)
-    return make_response(jsonify(message="Product moved to Order Successfully"), status.HTTP_200_OK)
+    return make_response(jsonify(message="Product moved to Order Successfully",data=cart_item.serialize()), status.HTTP_200_OK)
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
