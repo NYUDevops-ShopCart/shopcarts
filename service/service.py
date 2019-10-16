@@ -133,7 +133,7 @@ def create_cart_item(customer_id):
     app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
     check_content_type('application/json')
     # check if coustomer_id are the same
-    if not customer_id == request.get_json()['customer_id']: 
+    if not customer_id == request.get_json()['customer_id']:
         # abort(400, description="coustomer id doesn't match")
         return make_response("coustomer id doesn't match", status.HTTP_400_BAD_REQUEST)
     product_id = request.get_json()['product_id']
@@ -145,11 +145,11 @@ def create_cart_item(customer_id):
     shopcart.deserialize(request.get_json())
     shopcart.save()
     message = shopcart.serialize()
-    location_url = url_for('get_cart_item', customer_id=customer_id, product_id = product_id)
+    location_url = url_for('get_cart_item', customer_id=customer_id, product_id=product_id)
     return make_response(jsonify(message), status.HTTP_201_CREATED,
-                        {
-                            'Location': location_url
-                        })
+                         {
+                             'Location': location_url
+                         })
 
 ######################################################################
 # UPDATE AN EXISTING SHOPCART ITEM
