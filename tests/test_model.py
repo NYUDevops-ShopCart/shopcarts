@@ -74,6 +74,13 @@ class TestShopcart(unittest.TestCase):
         self.assertEqual(shopcart.text,"Headphones")
         self.assertEqual(shopcart.state,None)
     
+    def test_deserialize_a_shopcart(self):
+        """ Test deserialization of an invalid dictionary Shopcart """
+        data = {"id": 1, "product_id": 1,"quantity": 2, "price": "45.66", 
+        "text": "Headphones","state":1}
+        shopcart = Shopcart()
+        self.assertRaises(DataValidationError, shopcart.deserialize,data)
+    
     def test_find_by_customer_id_pos(self):
         """ Find a shopcart by customer_id """
         Shopcart(product_id=3, customer_id=10, quantity=2, price=5.0, text="pen", state=1).save()

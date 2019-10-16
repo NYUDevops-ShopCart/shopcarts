@@ -167,3 +167,51 @@ class TestShopcartServer(unittest.TestCase):
         shopcart_find_by_customer_id_mock.return_value = [MagicMock(serialize=lambda: {'customer_id': 1})]
         resp = self.app.get('/shopcarts/{}'.format(1))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+    
+    def test_not_found_error_handler(self):
+        """ Error handler for 404 not found """
+        resp = self.app.get('/shopcarts/hello',
+                            content_type='application/json')
+        self.assertEqual(resp.status_code,status.HTTP_404_NOT_FOUND)
+    
+    def test_bad_request_error_handler(self):
+        """ Error handler for 400 bad request """
+        request_data={}
+        request_data['quantity'] = 0
+        resp = self.app.put('/shopcarts/{}/{}'.format(1,2),
+                            json= request_data,
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_invalid_request_type_handler(self):
+        """ Error handler for invalid request type 405 """
+        resp = self.app.put('/shopcarts/{}'.format(1),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code,status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_internal_server_error_handler(self):
+        """ Error handler for invalid server handler 500 """
+        request_data={}
+        resp = self.app.get('/shopcarts/query/{}'.format(1),
+                            json= request_data,
+                            content_type='application/json')
+        self.assertEqual(resp.status_code,status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def test_request_content_type(self):
+        """ Test request header content type and 415 error handler"""
+        test_item = ShopcartFactory()
+        resp = self.app.post('/shopcarts/{}'.format(test_item.customer_id),
+                            json=test_item.serialize(),
+                            content_type='applicationnn/json')
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+    
+    def test_add_item_when_cart_already_exist(self):
+        """ Test add item when cart already exist for given product and customer id """
+        test_item = self._create_shopcarts(2)[1]
+        initial_quantity = test_item.quantity
+        resp = self.app.post('/shopcarts/{}'.format(test_item.customer_id),
+                            json=test_item.serialize(),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        restponse_data = resp.get_json()
+        self.assertEqual(initial_quantity,restponse_data['quantity'])
