@@ -4,7 +4,7 @@ python:
 
 # command to install dependencies
 before_install:
-- sudo pip3 install requests
+- sudo apt-get -y install requests
 
 install: "pip install -r requirements.txt"
 
