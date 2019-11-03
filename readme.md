@@ -1,5 +1,7 @@
 ### NYU-DevOps Shopcart Squad
 
+[![Build Status](https://travis-ci.org/NYUDevops-ShopCart/shopcarts.svg?branch=master)](https://travis-ci.org/NYUDevops-ShopCart/shopcarts)
+
 README for the shopcart squad.
 
 #### API calls
