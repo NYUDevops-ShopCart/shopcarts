@@ -194,7 +194,7 @@ def delete_cart_item(customer_id, product_id):
 ######################################################################
 # MOVE A SHOPCART ITEM TO CHECKOUT
 ######################################################################
-@app.route('/shopcarts/checkout/<int:customer_id>/<int:product_id>', methods=['PUT'])
+@app.route('/shopcarts/<int:customer_id>/<int:product_id>/checkout', methods=['PUT'])
 def move_cart_item_to_checkout(customer_id, product_id):
     app.logger.info('Request to move product with id %s for customer with id %s to checkout',
                     product_id, customer_id)
