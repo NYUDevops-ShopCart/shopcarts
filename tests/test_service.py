@@ -197,7 +197,7 @@ class TestShopcartServer(unittest.TestCase):
         """ Checkout item in shopcart to order stage """
         shopcart_item = self._create_shopcarts(1)[0]
         self.assertEqual(shopcart_item.state,0)
-        resp = self.app.put('/shopcarts/checkout/{}/{}'.format(shopcart_item.customer_id,shopcart_item.product_id),
+        resp = self.app.put('/shopcarts/{}/{}/checkout'.format(shopcart_item.customer_id,shopcart_item.product_id),
                                 content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data= resp.get_json()
