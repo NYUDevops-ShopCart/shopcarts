@@ -1,0 +1,17 @@
+language: python
+python:
+- "3.6"
+services:
+- mysql
+
+# command to install dependencies
+install: "pip install -r requirements.txt"
+# command to run tests
+before_install: mysql -e 'CREATE DATABASE IF NOT EXISTS shopcarts;'
+env:
+ global:
+ - DATABASE_URI='mysql+pymysql://root@0.0.0.0:3306/shopcarts'
+script: 
+ - nosetests
+after_success:
+ - codecov
