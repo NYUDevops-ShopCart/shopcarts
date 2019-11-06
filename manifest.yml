@@ -1,0 +1,19 @@
+---
+# This manifest deploys a Python Flask application with a Redis database
+applications:
+- name: shopcarts
+  path: .
+  instances: 1
+  memory: 64M
+  #random-route: true
+  routes:
+  - route: shopcarts.mybluemix.net
+  disk_quota: 1024M
+  buildpack: python_buildpack
+  timeout: 180
+  #command: gunicorn --bind=0.0.0.0:$PORT service:app
+  services:
+  - Cloudant
+  env:
+    FLASK_APP : service:app
+    FLASK_DEBUG : false
