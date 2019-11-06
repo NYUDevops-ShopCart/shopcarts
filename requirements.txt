@@ -17,4 +17,4 @@ codecov==2.0.15
 
 # runtime
 gunicorn==19.9.0
-honcho==1.0.1s
+honcho==1.0.1
