@@ -1,18 +1,23 @@
 language: python
+
 python:
-  - "3.6"
+- "3.6"
+
+services:
+- mysql
 
 # command to install dependencies
 install: "pip install -r requirements.txt"
 
-# commands to run tests
-# before_script: redis-cli ping
+# command to run tests
+before_install: mysql -e 'CREATE DATABASE IF NOT EXISTS shopcart;'
 
-script:
-  - nosetests
-
+env:
+ global:
+ - DATABASE_URI='mysql+pymysql://root:password@localhost:3306/shopcarts'
+ 
+script: 
+ - nosetests
+ 
 #after_success:
-#  - codecov
-
-#services:
-#  - redis-server
+# - codecov
