@@ -80,12 +80,18 @@ class TestShopcartServer(unittest.TestCase):
         for shopcart in data:
             self.assertTrue(shopcart['customer_id'] == test_customer_id)
 
-        resp2 = self.app.get('/shopcarts/{}?price=20/'.format(test_customer_id))
-        data2 = resp2.get_json()
-        self.assertEqual(len(data2), len(customer_id_shopcarts))
+    def test_query_cart_iterms(self):
+        """ Query all items of the shopcart for a customer which price is below 20 dollars"""
+        shopcarts = self._create_shopcarts(10)
+        test_customer_id = shopcarts[0].customer_id
+        test_target_price = shopcarts[0].price
+        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id]
+        resp = self.app.get('/shopcarts/{}?price={}/'.format(test_customer_id, test_target_price))
+        data = resp.get_json()
+        self.assertEqual(len(data), len(customer_id_shopcarts))
         # check the data to be sure
         for shopcart in data:
-            self.assertTrue(shopcart['customer_id'] == test_customer_id and float(shopcart['price']) <= 20)
+            self.assertTrue(shopcart['customer_id'] == test_customer_id and float(shopcart['price']) <= test_target_price)
 
     def test_get_cart_item_pos(self):
         """ Retrieve a single shop cart item """
