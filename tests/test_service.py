@@ -241,3 +241,12 @@ class TestShopcartServer(unittest.TestCase):
                             json=test_item.serialize(),
                             content_type='applicationnn/json')
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_internal_server_error_handler(self):
+        """ Error handler for invalid server handler 500 """
+        request_data={}
+        resp = self.app.post('/shopcarts/{}'.format(1),
+                            json= request_data,
+                            content_type='application/json')
+        self.assertEqual(resp.status_code,status.HTTP_500_INTERNAL_SERVER_ERROR)
+
