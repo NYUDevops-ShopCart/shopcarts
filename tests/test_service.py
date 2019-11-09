@@ -51,7 +51,7 @@ class TestShopcartServer(unittest.TestCase):
         resp = self.app.get('/')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-        self.assertEqual(data['text'], 'Shop cart service')
+        self.assertIn(b'Shopcart REST API Service', resp.data)
 
     def _create_shopcarts(self, count):
         """ Factory method to create shopcarts in bulk """
