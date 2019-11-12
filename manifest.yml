@@ -13,7 +13,7 @@ applications:
   timeout: 180
   #command: gunicorn --bind=0.0.0.0:$PORT service:app
   services:
-  - Cloudant
+  - Db2
   env:
     FLASK_APP : service:app
     FLASK_DEBUG : false
