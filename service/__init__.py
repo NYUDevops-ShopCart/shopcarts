@@ -13,6 +13,11 @@ from flask import Flask
 DATABASE_URI = os.getenv('DATABASE_URI', 'mysql+pymysql://root:password@localhost:3306/shopcarts')
 SECRET_KEY = os.getenv('SECRET_KEY', 's3cr3t-key-shhhh')
 
+if 'VCAP_SERVICES' in os.environ:
+    print('Getting database from VCAP_SERVICES')
+    vcap_services = json.loads(os.environ['VCAP_SERVICES'])
+    DATABASE_URI = vcap_services['user-provided'][0]['credentials']['database_uri']
+
 # Create Flask application
 app = Flask(__name__)
 
