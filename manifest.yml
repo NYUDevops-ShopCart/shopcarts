@@ -1,13 +1,13 @@
 ---
 # This manifest deploys a Python Flask application with a Redis database
 applications:
-- name: shopcarts
+- name: nyu-shopcart-service-f19
   path: .
   instances: 1
   memory: 64M
   #random-route: true
   routes:
-  - route: shopcarts.mybluemix.net
+  - route: nyu-shopcart-service-f19.mybluemix.net
   disk_quota: 1024M
   buildpack: python_buildpack
   timeout: 180
