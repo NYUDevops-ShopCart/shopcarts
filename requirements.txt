@@ -1,4 +1,4 @@
-# Runtime dependencies
+# Core Service 
 Flask==1.1.1
 Flask-API==1.1
 Flask-SQLAlchemy==2.4.1
@@ -7,16 +7,26 @@ psycopg2-binary==2.8.3
 cloudant==2.12.0
 ibm_db==3.0.1
 ibm_db_sa==0.3.5
+factory-boy==2.12.0
 
-# Testing
+# Runtime 
+honcho==1.0.1
+httpie==1.0.3
+gunicorn==19.9.0
+
+# Test Driven Development
+pylint==2.4.3
 nose==1.3.7
 pinocchio==0.4.2
-factory-boy==2.12.0
-coverage==4.5.4
-pylint>=2.4.1
+
+# Behavior Driven Development
+behave==1.2.6
+selenium==3.141.0
+compare==0.2b0
 requests==2.22.0
-codecov==2.0.15
 
 # runtime
-gunicorn==19.9.0
-honcho==1.0.1
+
+# Code Coverage
+coverage==4.5.4
+codecov==2.0.15

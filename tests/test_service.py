@@ -79,18 +79,14 @@ class TestShopcartServer(unittest.TestCase):
         # check the data to be sure
         for shopcart in data:
             self.assertTrue(shopcart['customer_id'] == test_customer_id)
-    
-    def test_query_cart_items(self):
-        """ Query shopcart by customer_id and show all items below the target price"""
+
+    def test_query_cart_iterms(self):
+        """ Query all items of the shopcart for a customer which price is below 20 dollars"""
         shopcarts = self._create_shopcarts(10)
         test_customer_id = shopcarts[0].customer_id
         test_target_price = shopcarts[0].price
-        query_params_dict = {}
-        query_params_dict['target_price']=str(test_target_price)
-        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id and shopcart.price <= test_target_price]
-        resp = self.app.get('/shopcarts/query/{}'.format(test_customer_id),
-                            json=query_params_dict,
-                            content_type= 'application/json')
+        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id]
+        resp = self.app.get('/shopcarts/{}?price={}/'.format(test_customer_id, test_target_price))
         data = resp.get_json()
         self.assertEqual(len(data), len(customer_id_shopcarts))
         # check the data to be sure
@@ -237,14 +233,6 @@ class TestShopcartServer(unittest.TestCase):
         resp = self.app.put('/shopcarts/{}'.format(1),
                             content_type='application/json')
         self.assertEqual(resp.status_code,status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_internal_server_error_handler(self):
-        """ Error handler for invalid server handler 500 """
-        request_data={}
-        resp = self.app.get('/shopcarts/query/{}'.format(1),
-                            json= request_data,
-                            content_type='application/json')
-        self.assertEqual(resp.status_code,status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def test_request_content_type(self):
         """ Test request header content type and 415 error handler"""
@@ -253,3 +241,12 @@ class TestShopcartServer(unittest.TestCase):
                             json=test_item.serialize(),
                             content_type='applicationnn/json')
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_internal_server_error_handler(self):
+        """ Error handler for invalid server handler 500 """
+        request_data={}
+        resp = self.app.post('/shopcarts/{}'.format(1),
+                            json= request_data,
+                            content_type='application/json')
+        self.assertEqual(resp.status_code,status.HTTP_500_INTERNAL_SERVER_ERROR)
+
