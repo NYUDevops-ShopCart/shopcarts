@@ -106,13 +106,14 @@ $(function () {
     // Retrieve a Pet
     // ****************************************
 
-    $("#retrieve-btn").click(function () {
+    $("#read-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/pets/" + pet_id,
+            url: "/shopcarts/" + customer_id + "/" + product_id,
             contentType: "application/json",
             data: ''
         })
