@@ -18,9 +18,11 @@ $(function () {
 
     /// Clears all form fields
     function clear_form_data() {
-        $("#pet_name").val("");
-        $("#pet_category").val("");
-        $("#pet_available").val("");
+        $("#customer_id").val("");
+        $("#product_id").val("");
+        $("#item_text").val("");
+        $("#quantity").val("");
+        $("#price").val("");
     }
 
     // Updates the flash message area
@@ -148,6 +150,30 @@ $(function () {
 
         ajax.fail(function(res){
             flash_message("Server error!")
+        });
+    });
+
+    // ****************************************
+    // Move the product to checkout start
+    // ****************************************
+
+    $("#order-btn").click(function () {
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+
+        var ajax = $.ajax({
+            type: "PUT",
+            url: "/shopcarts/" + customer_id + "/" + product_id + "/checkout",
+            contentType: "application/json"
+        })
+
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Product has been moved to Orders!")
+        });
+
+        ajax.fail(function(res){    
+            flash_message(res.responseJSON.message)
         });
     });
 
