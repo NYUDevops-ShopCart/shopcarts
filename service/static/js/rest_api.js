@@ -4,8 +4,8 @@ $(function () {
     //  U T I L I T Y   F U N C T I O N S
     // ****************************************
     function update_form_data(res) {
-        $("#customer_id").val(res.customer_ID);
-        $("#product_id").val(res.product_ID);
+        $("#customer_id").val(res.customer_id);
+        $("#product_id").val(res.product_id);
         $("#item_text").val(res.item_text);
         $("#quantity").val(res.quantity);
         $("#price").val(res.price);
@@ -17,7 +17,7 @@ $(function () {
         $("#product_id").val("");
         $("#item_text").val("");
         $("#quantity").val("");
-        $("#price").val("")
+        $("#price").val("");
     }
 
     // Updates the flash message area
