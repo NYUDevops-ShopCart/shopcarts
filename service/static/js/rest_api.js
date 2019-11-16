@@ -18,9 +18,11 @@ $(function () {
 
     /// Clears all form fields
     function clear_form_data() {
-        $("#pet_name").val("");
-        $("#pet_category").val("");
-        $("#pet_available").val("");
+        $("#customer_id").val("");
+        $("#product_id").val("");
+        $("#item_text").val("");
+        $("#quantity").val("");
+        $("#price").val("");
     }
 
     // Updates the flash message area
@@ -170,7 +172,7 @@ $(function () {
             flash_message("Product has been moved to Orders!")
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function(res){    
             flash_message(res.responseJSON.message)
         });
     });
