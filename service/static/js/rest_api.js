@@ -120,9 +120,31 @@ $(function () {
 
         ajax.done(function(res){
             //alert(res.toSource())
-            update_form_data(res)
-            flash_message("Success")
-        });
+            $("#search_results").empty();
+            $("#search_results").append('<table class="table-striped" cellpadding="10">');
+            var header = '<tr>'
+            header += '<th style="width:10%">Customer_ID</th>'
+            header += '<th style="width:40%">Product_ID</th>'
+            header += '<th style="width:40%">Item_Text</th>'
+            header += '<th style="width:40%">Quantity</th>'
+            header += '<th style="width:10%">Price</th></tr>'
+            $("#search_results").append(header);
+            var firstItem = "";
+            for(var i = 0; i < res.length; i++) {
+                var item = res[i];
+                var row = "<tr><td>"+item.customer_id+"</td><td>"+item.product_id+"</td><td>"+item.text+"</td><td>"+item.quantity+"</td><td>"+item.price +"</td></tr>" ;
+                $("#search_results").append(row);
+                if (i == 0) {
+                    firstItem = item;
+                }
+            }
+
+            $("#search_results").append('</table>');
+            // copy the first result to the form
+            if (firstItem != "") {
+                update_form_data(firstItem)
+            }
+            flash_message("Read shopcart Success!")
 
         ajax.fail(function(res){
             clear_form_data()
