@@ -34,19 +34,23 @@ $(function () {
 
     $("#create-btn").click(function () {
 
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+        var quantity = $("#quantity").val();
+        var price = $("#price").val();
+        var text = $("#item_text").val();
 
         var data = {
-            "name": name,
-            "category": category,
-            "available": available
+            "customer_id": customer_id,
+            "product_id": product_id,
+            "quantity": quantity,
+            "price": price,
+            "text": text
         };
 
         var ajax = $.ajax({
             type: "POST",
-            url: "/pets",
+            url: "/shopcarts/" + customer_id,
             contentType: "application/json",
             data: JSON.stringify(data),
         });
