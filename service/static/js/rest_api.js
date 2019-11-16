@@ -123,6 +123,61 @@ $(function () {
 
     });
     
+    $("#delete-btn").click(function () {
+
+        var pet_id = $("#pet_id").val();
+
+        var ajax = $.ajax({
+            type: "DELETE",
+            url: "/pets/" + pet_id,
+            contentType: "application/json",
+            data: '',
+        })
+
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Pet has been Deleted!")
+        });
+
+        ajax.fail(function(res){
+            flash_message("Server error!")
+        });
+    });
+
+    // ****************************************
+    // Move the product to checkout start
+    // ****************************************
+
+    $("#order-btn").click(function () {
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+
+        var ajax = $.ajax({
+            type: "PUT",
+            url: "/shopcarts/" + customer_id + "/" + product_id + "/checkout",
+            contentType: "application/json"
+        })
+
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Product has been moved to Orders!")
+        });
+
+        ajax.fail(function(res){    
+            flash_message(res.responseJSON.message)
+        });
+    });
+
+    // ****************************************
+    // Clear the form
+    // ****************************************
+
+    $("#clear-btn").click(function () {
+        $("#pet_id").val("");
+        clear_form_data()
+    });
+
+
     // ****************************************
     // List shopcart and Query shopcart
     // ****************************************
@@ -170,40 +225,6 @@ $(function () {
             flash_message(res.responseJSON.message)
         });
 
-    });
-
-    // ****************************************
-    // Delete a Pet
-    // ****************************************
-    
-    $("#delete-btn").click(function () {
-
-        var pet_id = $("#pet_id").val();
-
-        var ajax = $.ajax({
-            type: "DELETE",
-            url: "/pets/" + pet_id,
-            contentType: "application/json",
-            data: '',
-        })
-
-        ajax.done(function(res){
-            clear_form_data()
-            flash_message("Pet has been Deleted!")
-        });
-
-        ajax.fail(function(res){
-            flash_message("Server error!")
-        });
-    });
-
-    // ****************************************
-    // Clear the form
-    // ****************************************
-
-    $("#clear-btn").click(function () {
-        $("#pet_id").val("");
-        clear_form_data()
     });
     
 })
