@@ -132,18 +132,18 @@ $(function () {
     
     $("#delete-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
 
         var ajax = $.ajax({
             type: "DELETE",
-            url: "/pets/" + pet_id,
-            contentType: "application/json",
+            url: "/shopcarts/" + customer_id + "/" + product_id,
             data: '',
         })
 
         ajax.done(function(res){
             clear_form_data()
-            flash_message("Pet has been Deleted!")
+            flash_message("Item has been Deleted!")
         });
 
         ajax.fail(function(res){
