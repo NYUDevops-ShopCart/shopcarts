@@ -6,21 +6,20 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#pet_id").val(res._id);
-        $("#pet_name").val(res.name);
-        $("#pet_category").val(res.category);
-        if (res.available == true) {
-            $("#pet_available").val("true");
-        } else {
-            $("#pet_available").val("false");
-        }
+        $("#customer_id").val(res.customer_id);
+        $("#product_id").val(res.product_id);
+        $("#item_text").val(res.item_text);
+        $("#quantity").val(res.quantity);
+        $("#price").val(res.price);
     }
 
     /// Clears all form fields
     function clear_form_data() {
-        $("#pet_name").val("");
-        $("#pet_category").val("");
-        $("#pet_available").val("");
+        $("#customer_id").val("");
+        $("#product_id").val("");
+        $("#item_text").val("");
+        $("#quantity").val("");
+        $("#price").val("");
     }
 
     // Updates the flash message area
@@ -69,20 +68,23 @@ $(function () {
 
     $("#update-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+        var item_text = $("#item_text").val();
+        var quantity = $("#quantity").val();
+        var price = $("#price").val();
 
         var data = {
-            "name": name,
-            "category": category,
-            "available": available
+        	"customer_id": customer_id,
+        	"product_id": product_id,
+            "item_text": item_text,
+            "quantity": quantity,
+            "price": price
         };
 
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/pets/" + pet_id,
+                url: "/shopcarts/" + customer_id + "/" + product_id,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
