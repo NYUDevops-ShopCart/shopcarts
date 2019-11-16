@@ -152,6 +152,30 @@ $(function () {
     });
 
     // ****************************************
+    // Move the product to checkout start
+    // ****************************************
+
+    $("#order-btn").click(function () {
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+
+        var ajax = $.ajax({
+            type: "PUT",
+            url: "/shopcarts/" + customer_id + "/" + product_id + "/checkout",
+            contentType: "application/json"
+        })
+
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Product has been moved to Orders!")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+    });
+
+    // ****************************************
     // Clear the form
     // ****************************************
 
