@@ -32,19 +32,23 @@ $(function () {
     
     $("#create-btn").click(function () {
 
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+        var quantity = $("#quantity").val();
+        var price = $("#price").val();
+        var text = $("#item_text").val();
 
         var data = {
-            "name": name,
-            "category": category,
-            "available": available
+            "customer_id": customer_id,
+            "product_id": product_id,
+            "quantity": quantity,
+            "price": price,
+            "text": text
         };
 
         var ajax = $.ajax({
             type: "POST",
-            url: "/pets",
+            url: "/shopcarts/" + customer_id,
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -99,13 +103,14 @@ $(function () {
     // Retrieve a Pet
     // ****************************************
 
-    $("#retrieve-btn").click(function () {
+    $("#read-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/pets/" + pet_id,
+            url: "/shopcarts/" + customer_id + "/" + product_id,
             contentType: "application/json",
             data: ''
         })
@@ -125,18 +130,18 @@ $(function () {
     
     $("#delete-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
 
         var ajax = $.ajax({
             type: "DELETE",
-            url: "/pets/" + pet_id,
-            contentType: "application/json",
+            url: "/shopcarts/" + customer_id + "/" + product_id,
             data: '',
         })
 
         ajax.done(function(res){
             clear_form_data()
-            flash_message("Pet has been Deleted!")
+            flash_message("Item has been Deleted!")
         });
 
         ajax.fail(function(res){
@@ -185,6 +190,7 @@ $(function () {
     $("#list-btn").click(function () {
 
         var customer_id = $("#customer_id").val();
+
         var ajax = $.ajax({
             type: "GET",
             url: "/shopcarts/" + customer_id
@@ -263,6 +269,7 @@ $(function () {
             $("#search_results").append('</table>');
             // copy the first result to the form
             if (firstItem != "") {
+
                 update_form_data(firstItem)
             }
             flash_message("Query shopcart Success!")

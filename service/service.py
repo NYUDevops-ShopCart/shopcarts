@@ -126,8 +126,9 @@ def create_cart_item(customer_id):
     app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
     check_content_type('application/json')
     # check if coustomer_id are the same
-    if not customer_id == request.get_json()['customer_id']:
+    if not customer_id == int(request.get_json()['customer_id']):
         # abort(400, description="coustomer id doesn't match")
+        app.logger.info("coustomer id doesn't match")
         return make_response("coustomer id doesn't match", status.HTTP_400_BAD_REQUEST)
     product_id = request.get_json()['product_id']
     shopcart = Shopcart()
