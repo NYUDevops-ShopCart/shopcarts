@@ -70,23 +70,20 @@ $(function () {
 
     $("#update-btn").click(function () {
 
-        var customer_id = $("#customer_id").val();
-        var product_id = $("#product_id").val();
-        var item_text = $("#item_text").val();
-        var quantity = $("#quantity").val();
-        var price = $("#price").val();
+        var pet_id = $("#pet_id").val();
+        var name = $("#pet_name").val();
+        var category = $("#pet_category").val();
+        var available = $("#pet_available").val() == "true";
 
         var data = {
-        	"customer_id": customer_id,
-        	"product_id": product_id,
-            "item_text": item_text,
-            "quantity": quantity,
-            "price": price
+            "name": name,
+            "category": category,
+            "available": available
         };
 
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/shopcarts/" + customer_id + "/" + product_id,
+                url: "/pets/" + pet_id,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -187,7 +184,7 @@ $(function () {
 
 
     // ****************************************
-    // List shopcart and Query shopcart
+    // List shopcart
     // ****************************************
 
     $("#list-btn").click(function () {
@@ -198,7 +195,6 @@ $(function () {
             type: "GET",
             url: "/shopcarts/" + customer_id
         })
-
         ajax.done(function(res){
             //alert(res.toSource())
             $("#search_results").empty();
@@ -223,7 +219,7 @@ $(function () {
             $("#search_results").append('</table>');
             // copy the first result to the form
             if (firstItem != "") {
-                update_form_data(firstPet)
+                update_form_data(firstItem)
             }
             flash_message("List shopcart Success!")
         });
@@ -235,4 +231,54 @@ $(function () {
 
     });
     
+    // ****************************************
+    // Query shopcart
+    // ****************************************
+
+    $("#query-btn").click(function () {
+
+        var customer_id = $("#customer_id").val();
+        var price = $("#price").val();
+
+        var ajax = $.ajax({
+            type: "GET",
+            url: "/shopcarts/" + customer_id + "?price=" + price
+        })
+        
+        ajax.done(function(res){
+            //alert(res.toSource())
+            $("#search_results").empty();
+            $("#search_results").append('<table class="table-striped" cellpadding="10">');
+            var header = '<tr>'
+            header += '<th style="width:10%">Customer_ID</th>'
+            header += '<th style="width:40%">Product_ID</th>'
+            header += '<th style="width:40%">Item_Text</th>'
+            header += '<th style="width:40%">Quantity</th>'
+            header += '<th style="width:10%">Price</th></tr>'
+            $("#search_results").append(header);
+            var firstItem = "";
+            for(var i = 0; i < res.length; i++) {
+                var item = res[i];
+                var row = "<tr><td>"+item.customer_id+"</td><td>"+item.product_id+"</td><td>"+item.text+"</td><td>"+item.quantity+"</td><td>"+item.price +"</td></tr>" ;
+                $("#search_results").append(row);
+                if (i == 0) {
+                    firstItem = item;
+                }
+            }
+
+            $("#search_results").append('</table>');
+            // copy the first result to the form
+            if (firstItem != "") {
+
+                update_form_data(firstItem)
+            }
+            flash_message("Query shopcart Success!")
+        });
+
+        ajax.fail(function(res){
+            clear_form_data()
+            flash_message(res.responseJSON.message)
+        });
+
+    });
 })
