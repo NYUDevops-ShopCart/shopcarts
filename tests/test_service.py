@@ -198,6 +198,20 @@ class TestShopcartServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data= resp.get_json()
         self.assertEqual(data['data']['state'],2)
+    
+    def test_checkout_shopcart_bad_request(self):
+        """ Checkout item in shopcart to order stage when item does not exist"""
+        resp = self.app.put('/shopcarts/{}/{}/checkout'.format(564,546),
+                                content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_delete_all_shopcart(self):
+    	""" Delete all items in the shopcart table"""
+    	test_item = self._create_shopcarts(1)[0]
+    	resp = self.app.delete('/shopcarts/reset',
+    							content_type='applicatoin/json')
+    	self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+    	self.assertEqual(len(resp.data), 0)
 
     @patch('service.models.Shopcart.find_by_customer_id')
     def test_bad_request(self, bad_request_mock):
