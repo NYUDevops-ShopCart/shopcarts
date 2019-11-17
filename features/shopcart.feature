@@ -22,4 +22,13 @@ Scenario: The server is running
 #Scenario: Read
 #Scenario: Delete
 #Scenario: Update 
-#Scenario: Action
+Scenario: Action
+    When I visit the "Home Page"
+    And I set the "Customer_ID" to "2"
+    And I set the "Product_ID" to "3"
+    And I press the "Read" button
+    Then I should see "Apple Watch" in the "Text" field
+    And I should see "1" in the "Quantity" field
+    And I should see "400" in the "Price" field
+    When I press the "Order" button
+    Then I should see the message "Product has been moved to Orders!"

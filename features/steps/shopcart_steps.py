@@ -57,7 +57,7 @@ def step_impl(context, message):
 
 @when('I set the "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
-    element_id = 'pet_' + element_name.lower()
+    element_id = element_name.lower()
     element = context.driver.find_element_by_id(element_id)
     element.clear()
     element.send_keys(text_string)
@@ -155,7 +155,7 @@ def step_impl(context, message):
 
 @then('I should see "{text_string}" in the "{element_name}" field')
 def step_impl(context, text_string, element_name):
-    element_id = 'pet_' + element_name.lower()
+    element_id = element_name.lower()
     # element = context.driver.find_element_by_id(element_id)
     # expect(element.get_attribute('value')).to_equal(text_string)
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(

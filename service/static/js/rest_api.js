@@ -6,7 +6,7 @@ $(function () {
     function update_form_data(res) {
         $("#customer_id").val(res.customer_id);
         $("#product_id").val(res.product_id);
-        $("#item_text").val(res.item_text);
+        $("#text").val(res.text);
         $("#quantity").val(res.quantity);
         $("#price").val(res.price);
     }
