@@ -5,10 +5,10 @@ Feature: Shopcart store service back-end
 
 Background:
     Given the following shopcart
-        | customer id   | product id    | text          | quantity  | price     
-        | 1             | 1             | MacBook Pro   | 3         | 1000
-        | 1             | 2             | iPhone        | 4         | 800
-        | 2             | 3             | Apple Watch   | 1         | 400
+        | customer_id   | product_id    | text          | quantity  | price |
+        | 1             | 1             | MacBook Pro   | 3         | 1000  |
+        | 1             | 2             | iPhone        | 4         | 800   |
+        | 2             | 3             | Apple Watch   | 1         | 400   |
 
 
 Scenario: The server is running
@@ -16,7 +16,7 @@ Scenario: The server is running
     Then I should see "Shopcart RESTful Service" in the title
     And I should not see "404 Not Found"
 
-Scenario: Create 
+#Scenario: Create 
 #Scenario: List 
 #Scenario: Query 
 #Scenario: Read

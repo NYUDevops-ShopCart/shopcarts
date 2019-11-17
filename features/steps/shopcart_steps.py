@@ -19,21 +19,23 @@ from selenium.webdriver.support import expected_conditions
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '60'))
 
-@given('the following pets')
+@given('the following shopcart')
 def step_impl(context):
-    """ Delete all Pets and load new ones """
+    """ Delete all Shopcarts and load new ones """
     headers = {'Content-Type': 'application/json'}
-    context.resp = requests.delete(context.base_url + '/pets/reset', headers=headers)
+    context.resp = requests.delete(context.base_url + '/shopcarts/reset', headers=headers)
     expect(context.resp.status_code).to_equal(204)
-    create_url = context.base_url + '/pets'
+    create_url = context.base_url + '/shopcarts/'
     for row in context.table:
         data = {
-            "name": row['name'],
-            "category": row['category'],
-            "available": row['available'] in ['True', 'true', '1']
+            "product_id": row['product_id'],
+            "customer_id": row['customer_id'],
+            "quantity": row['quantity'],
+            "price": row['price'],
+            "text": row['text']
             }
         payload = json.dumps(data)
-        context.resp = requests.post(create_url, data=payload, headers=headers)
+        context.resp = requests.post(create_url+row['customer_id'], data=payload, headers=headers)
         expect(context.resp.status_code).to_equal(201)
 
 @when('I visit the "home page"')

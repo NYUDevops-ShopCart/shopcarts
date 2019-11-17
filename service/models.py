@@ -166,3 +166,9 @@ class Shopcart(DB.Model):
         cls.logger.info('Processing customer query for %s and price query for %s...',
                         customer_id, price)
         return cls.query.filter((cls.customer_id == customer_id) & (cls.price <= price))
+    
+    @classmethod
+    def remove_all(cls):
+        """ Removes all documents from the database (use for testing)  """
+        DB.session.query(Shopcart).delete()
+        DB.session.commit()

@@ -27,7 +27,7 @@ $(function () {
     }
 
     // ****************************************
-    // Create a Pet
+    // Create a Shopcart
     // ****************************************
     
     $("#create-btn").click(function () {
