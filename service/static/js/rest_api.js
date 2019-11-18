@@ -28,7 +28,7 @@ $(function () {
 
     
     // ****************************************
-    // Create a Shopcart
+    // Create an Item
     // ****************************************
     
     $("#create-btn").click(function () {
@@ -66,25 +66,28 @@ $(function () {
 
 
     // ****************************************
-    // Update a Pet
+    // Update Shopcart
     // ****************************************
 
     $("#update-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+        var item_text = $("#item_text").val();
+        var quantity = $("#quantity").val();
+        var price = $("#price").val();
 
         var data = {
-            "name": name,
-            "category": category,
-            "available": available
+           "customer_id": customer_id,
+            "product_id": product_id,
+            "item_text": item_text,
+            "quantity": quantity,
+            "price": price
         };
 
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/pets/" + pet_id,
+                url: "/shopcarts/" + customer_id + "/" + product_id,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -101,7 +104,7 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve a Shopcart
+    // Retrieve an Item
     // ****************************************
 
     $("#read-btn").click(function () {
@@ -145,6 +148,10 @@ $(function () {
         console.log("abcdefg")
 
     });
+
+    // ****************************************
+    // Delete an item
+    // ****************************************
     
     $("#delete-btn").click(function () {
 
