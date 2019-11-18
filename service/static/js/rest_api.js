@@ -26,8 +26,9 @@ $(function () {
         $("#flash_message").append(message);
     }
 
+    
     // ****************************************
-    // Create a Pet
+    // Create a Shopcart
     // ****************************************
     
     $("#create-btn").click(function () {
@@ -59,7 +60,7 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
+            flash_message(res.responseText)
         });
     });
 
@@ -100,7 +101,7 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve a Pet
+    // Retrieve a Shopcart
     // ****************************************
 
     $("#read-btn").click(function () {
@@ -116,37 +117,32 @@ $(function () {
         })
 
         ajax.done(function(res){
-            //alert(res.toSource())
-            $("#search_results").empty();
-            $("#search_results").append('<table class="table-striped" cellpadding="10">');
-            var header = '<tr>'
-            header += '<th style="width:10%">Customer_ID</th>'
-            header += '<th style="width:40%">Product_ID</th>'
-            header += '<th style="width:40%">Item_Text</th>'
-            header += '<th style="width:40%">Quantity</th>'
-            header += '<th style="width:10%">Price</th></tr>'
-            $("#search_results").append(header);
-            var firstItem = "";
-            for(var i = 0; i < res.length; i++) {
-                var item = res[i];
+            if(!$.isEmptyObject(res)) {
+                $("#search_results").empty();
+                $("#search_results").append('<table class="table-striped" cellpadding="10">');
+                var header = '<tr>'
+                header += '<th style="width:10%">Customer_ID</th>'
+                header += '<th style="width:40%">Product_ID</th>'
+                header += '<th style="width:40%">Item_Text</th>'
+                header += '<th style="width:40%">Quantity</th>'
+                header += '<th style="width:10%">Price</th></tr>'
+                $("#search_results").append(header);
+                var firstItem = "";
+                var item = res;
                 var row = "<tr><td>"+item.customer_id+"</td><td>"+item.product_id+"</td><td>"+item.text+"</td><td>"+item.quantity+"</td><td>"+item.price +"</td></tr>" ;
                 $("#search_results").append(row);
-                if (i == 0) {
-                    firstItem = item;
-                }
+                firstItem = item;
+                flash_message("Read shopcart Success!")
             }
-
-            $("#search_results").append('</table>');
-            // copy the first result to the form
-            if (firstItem != "") {
-                update_form_data(firstItem)
-            }
-            flash_message("Read shopcart Success!")
+            
+        });
 
         ajax.fail(function(res){
             clear_form_data()
             flash_message(res.responseJSON.message)
         });
+
+        console.log("abcdefg")
 
     });
     
