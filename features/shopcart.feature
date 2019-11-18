@@ -38,6 +38,13 @@ Scenario: Create
     And I should see "2" in the "Quantity" field
     And I should see "700" in the "Price" field
 #Scenario: List 
+    When I visit the "Home Page"
+    And I set the "Customer_ID" to "2"
+    And I press the "List" button
+    Then I should see the message "List shopcart Success!"
+    And I should see "2" in the results
+    And I should see "3" in the results
+    And I should see "Apple Watch" in the results
 #Scenario: Query 
 #Scenario: Read
 #Scenario: Delete
