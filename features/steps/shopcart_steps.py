@@ -76,7 +76,7 @@ def step_impl(context, text, element_name):
 
 @then('the "{element_name}" field should be empty')
 def step_impl(context, element_name):
-    element_id = 'pet_' + element_name.lower()
+    element_id = element_name.lower()
     element = context.driver.find_element_by_id(element_id)
     expect(element.get_attribute('value')).to_be(u'')
 

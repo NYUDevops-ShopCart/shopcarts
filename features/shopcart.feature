@@ -16,7 +16,27 @@ Scenario: The server is running
     Then I should see "Shopcart RESTful Service" in the title
     And I should not see "404 Not Found"
 
-#Scenario: Create 
+Scenario: Create
+    When I visit the "Home Page"
+    And I set the "Customer_ID" to "34"
+    And I set the "Product_ID" to "23"
+    And I set the "Text" to "Airpods"
+    And I set the "Quantity" to "2"
+    And I set the "Price" to "700"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I press the "Clear" button
+    Then the "Customer_ID" field should be empty
+    And the "Product_ID" field should be empty
+    And the "Text" field should be empty
+    And the "Quantity" field should be empty
+    And the "Price" field should be empty
+    When I set the "Customer_ID" to "34"
+    And I set the "Product_ID" to "23"
+    And I press the "Read" button
+    Then I should see "Airpods" in the "Text" field
+    And I should see "2" in the "Quantity" field
+    And I should see "700" in the "Price" field
 #Scenario: List 
 #Scenario: Query 
 #Scenario: Read

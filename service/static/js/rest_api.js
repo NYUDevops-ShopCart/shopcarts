@@ -15,7 +15,7 @@ $(function () {
     function clear_form_data() {
         $("#customer_id").val("");
         $("#product_id").val("");
-        $("#item_text").val("");
+        $("#text").val("");
         $("#quantity").val("");
         $("#price").val("");
     }
@@ -36,7 +36,7 @@ $(function () {
         var product_id = $("#product_id").val();
         var quantity = $("#quantity").val();
         var price = $("#price").val();
-        var text = $("#item_text").val();
+        var text = $("#text").val();
 
         var data = {
             "customer_id": customer_id,
@@ -202,7 +202,7 @@ $(function () {
             var header = '<tr>'
             header += '<th style="width:10%">Customer_ID</th>'
             header += '<th style="width:40%">Product_ID</th>'
-            header += '<th style="width:40%">Item_Text</th>'
+            header += '<th style="width:40%">Text</th>'
             header += '<th style="width:40%">Quantity</th>'
             header += '<th style="width:10%">Price</th></tr>'
             $("#search_results").append(header);
@@ -252,7 +252,7 @@ $(function () {
             var header = '<tr>'
             header += '<th style="width:10%">Customer_ID</th>'
             header += '<th style="width:40%">Product_ID</th>'
-            header += '<th style="width:40%">Item_Text</th>'
+            header += '<th style="width:40%">Text</th>'
             header += '<th style="width:40%">Quantity</th>'
             header += '<th style="width:10%">Price</th></tr>'
             $("#search_results").append(header);
