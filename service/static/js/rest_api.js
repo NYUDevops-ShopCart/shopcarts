@@ -26,6 +26,7 @@ $(function () {
         $("#flash_message").append(message);
     }
 
+    
     // ****************************************
     // Create a Shopcart
     // ****************************************
@@ -59,7 +60,7 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
+            flash_message(res.responseText)
         });
     });
 
@@ -100,7 +101,7 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve a Pet
+    // Retrieve a Shopcart
     // ****************************************
 
     $("#read-btn").click(function () {
@@ -116,15 +117,32 @@ $(function () {
         })
 
         ajax.done(function(res){
-            //alert(res.toSource())
-            update_form_data(res)
-            flash_message("Success")
+            if(!$.isEmptyObject(res)) {
+                $("#search_results").empty();
+                $("#search_results").append('<table class="table-striped" cellpadding="10">');
+                var header = '<tr>'
+                header += '<th style="width:10%">Customer_ID</th>'
+                header += '<th style="width:40%">Product_ID</th>'
+                header += '<th style="width:40%">Item_Text</th>'
+                header += '<th style="width:40%">Quantity</th>'
+                header += '<th style="width:10%">Price</th></tr>'
+                $("#search_results").append(header);
+                var firstItem = "";
+                var item = res;
+                var row = "<tr><td>"+item.customer_id+"</td><td>"+item.product_id+"</td><td>"+item.text+"</td><td>"+item.quantity+"</td><td>"+item.price +"</td></tr>" ;
+                $("#search_results").append(row);
+                firstItem = item;
+                flash_message("Read shopcart Success!")
+            }
+            
         });
 
         ajax.fail(function(res){
             clear_form_data()
             flash_message(res.responseJSON.message)
         });
+
+        console.log("abcdefg")
 
     });
     
