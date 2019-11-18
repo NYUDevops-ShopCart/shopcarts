@@ -121,6 +121,7 @@ $(function () {
 
         ajax.done(function(res){
             if(!$.isEmptyObject(res)) {
+                update_form_data(res);
                 $("#search_results").empty();
                 $("#search_results").append('<table class="table-striped" cellpadding="10">');
                 var header = '<tr>'
@@ -142,7 +143,7 @@ $(function () {
 
         ajax.fail(function(res){
             clear_form_data()
-            flash_message(res.responseJSON.message)
+            flash_message("Read shopcart Failed")
         });
 
         console.log("abcdefg")

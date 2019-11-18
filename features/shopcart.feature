@@ -47,7 +47,6 @@ Scenario: Delete
     And I set the "Product_ID" to "23"
     And I press the "Delete" button
     Then I should see the message "Item has been Deleted!"
-    Then I should see the message "Success"
     When I press the "Clear" button
     Then the "Customer_ID" field should be empty
     And the "Product_ID" field should be empty
@@ -57,8 +56,7 @@ Scenario: Delete
     When I set the "Customer_ID" to "34"
     And I set the "Product_ID" to "23"
     And I press the "Read" button
-    Then I should see the message "error": " Product not in cart"
-
+    Then I should see the message "Read shopcart Failed"
 
 #Scenario: Update 
 
