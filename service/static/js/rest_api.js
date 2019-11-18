@@ -6,7 +6,7 @@ $(function () {
     function update_form_data(res) {
         $("#customer_id").val(res.customer_id);
         $("#product_id").val(res.product_id);
-        $("#item_text").val(res.item_text);
+        $("#text").val(res.text);
         $("#quantity").val(res.quantity);
         $("#price").val(res.price);
     }
@@ -15,7 +15,7 @@ $(function () {
     function clear_form_data() {
         $("#customer_id").val("");
         $("#product_id").val("");
-        $("#item_text").val("");
+        $("#text").val("");
         $("#quantity").val("");
         $("#price").val("");
     }
@@ -26,6 +26,7 @@ $(function () {
         $("#flash_message").append(message);
     }
 
+    
     // ****************************************
     // Create an Item
     // ****************************************
@@ -36,7 +37,7 @@ $(function () {
         var product_id = $("#product_id").val();
         var quantity = $("#quantity").val();
         var price = $("#price").val();
-        var text = $("#item_text").val();
+        var text = $("#text").val();
 
         var data = {
             "customer_id": customer_id,
@@ -59,7 +60,7 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
+            flash_message(res.responseText)
         });
     });
 
@@ -119,15 +120,32 @@ $(function () {
         })
 
         ajax.done(function(res){
-            //alert(res.toSource())
-            update_form_data(res)
-            flash_message("Success")
+            if(!$.isEmptyObject(res)) {
+                $("#search_results").empty();
+                $("#search_results").append('<table class="table-striped" cellpadding="10">');
+                var header = '<tr>'
+                header += '<th style="width:10%">Customer_ID</th>'
+                header += '<th style="width:40%">Product_ID</th>'
+                header += '<th style="width:40%">Item_Text</th>'
+                header += '<th style="width:40%">Quantity</th>'
+                header += '<th style="width:10%">Price</th></tr>'
+                $("#search_results").append(header);
+                var firstItem = "";
+                var item = res;
+                var row = "<tr><td>"+item.customer_id+"</td><td>"+item.product_id+"</td><td>"+item.text+"</td><td>"+item.quantity+"</td><td>"+item.price +"</td></tr>" ;
+                $("#search_results").append(row);
+                firstItem = item;
+                flash_message("Read shopcart Success!")
+            }
+            
         });
 
         ajax.fail(function(res){
             clear_form_data()
             flash_message(res.responseJSON.message)
         });
+
+        console.log("abcdefg")
 
     });
 
@@ -209,7 +227,7 @@ $(function () {
             var header = '<tr>'
             header += '<th style="width:10%">Customer_ID</th>'
             header += '<th style="width:40%">Product_ID</th>'
-            header += '<th style="width:40%">Item_Text</th>'
+            header += '<th style="width:40%">Text</th>'
             header += '<th style="width:40%">Quantity</th>'
             header += '<th style="width:10%">Price</th></tr>'
             $("#search_results").append(header);
@@ -259,7 +277,7 @@ $(function () {
             var header = '<tr>'
             header += '<th style="width:10%">Customer_ID</th>'
             header += '<th style="width:40%">Product_ID</th>'
-            header += '<th style="width:40%">Item_Text</th>'
+            header += '<th style="width:40%">Text</th>'
             header += '<th style="width:40%">Quantity</th>'
             header += '<th style="width:10%">Price</th></tr>'
             $("#search_results").append(header);

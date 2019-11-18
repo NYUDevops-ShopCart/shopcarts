@@ -216,6 +216,16 @@ def move_cart_item_to_checkout(customer_id, product_id):
                     product_id, customer_id)
     return make_response(jsonify(message="Product moved to Order Successfully",
                                  data=cart_item.serialize()), status.HTTP_200_OK)
+
+######################################################################
+# DELETE ALL SHOPCART ITEMS
+######################################################################
+@app.route('/shopcarts/reset', methods=['DELETE'])
+def delete_cart_items():
+    app.logger.info('Request to delete all shopcart items')
+    Shopcart.remove_all()
+    return make_response('', status.HTTP_204_NO_CONTENT)
+
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################

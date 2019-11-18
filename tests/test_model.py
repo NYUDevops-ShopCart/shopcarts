@@ -167,4 +167,11 @@ class TestShopcart(unittest.TestCase):
         self.assertEqual(float(shopcart[0].price), 150.30)
         self.assertEqual(shopcart[0].text, "book")
         self.assertEqual(shopcart[0].state, 0)
-
+    
+    def test_remove_all(self):
+        """Remove all shopcart items"""
+        Shopcart(product_id=3, customer_id=10, quantity=2, price=5.0, text="pen", state=1).save()
+        Shopcart(product_id=4, customer_id=12, quantity=2, price=5.0, text="paper", state=1).save()
+        self.assertEqual(len(Shopcart.all()),2)
+        Shopcart.remove_all()
+        self.assertEqual(len(Shopcart.all()),0)
