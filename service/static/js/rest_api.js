@@ -121,7 +121,7 @@ $(function () {
 
         ajax.done(function(res){
             if(!$.isEmptyObject(res)) {
-                update_form_data(res)
+                update_form_data(res);
                 $("#search_results").empty();
                 $("#search_results").append('<table class="table-striped" cellpadding="10">');
                 var header = '<tr>'
