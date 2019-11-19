@@ -40,8 +40,26 @@ Scenario: Create
 #Scenario: List 
 #Scenario: Query 
 #Scenario: Read
-#Scenario: Delete
+
+Scenario: Delete
+    When I visit the "Home Page"
+    And I set the "Customer_ID" to "34"
+    And I set the "Product_ID" to "23"
+    And I press the "Delete" button
+    Then I should see the message "Item has been Deleted!"
+    When I press the "Clear" button
+    Then the "Customer_ID" field should be empty
+    And the "Product_ID" field should be empty
+    And the "Text" field should be empty
+    And the "Quantity" field should be empty
+    And the "Price" field should be empty
+    When I set the "Customer_ID" to "34"
+    And I set the "Product_ID" to "23"
+    And I press the "Read" button
+    Then I should see the message "Read shopcart Failed"
+
 #Scenario: Update 
+
 Scenario: Action
     When I visit the "Home Page"
     And I set the "Customer_ID" to "2"
