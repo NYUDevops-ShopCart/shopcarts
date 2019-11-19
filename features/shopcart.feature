@@ -39,6 +39,15 @@ Scenario: Create
     And I should see "700" in the "Price" field
 #Scenario: List 
 #Scenario: Query 
+    When I visit the "Home Page"
+    And I set the "Customer_ID" to "1"
+    And I set the "Price" to "900"
+    And I press the "Query" button
+    Then I should see the message "Query shopcart Success!"
+    And I should see "iPhone" in the results
+    And I should see "800" in the results
+    And I should not see "MacBook Pro" in the results
+    And I should not see "Apple Watch" in the results
 #Scenario: Read
 
 Scenario: Delete
