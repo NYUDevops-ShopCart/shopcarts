@@ -9,6 +9,7 @@ Test cases can be run with the following:
 import unittest
 import os
 import logging
+import json
 from flask_api import status    # HTTP Status Codes
 from unittest.mock import MagicMock, patch
 from flask import jsonify

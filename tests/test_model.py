@@ -7,6 +7,7 @@ Test cases can be run with:
 """
 import unittest
 import os
+import json
 from werkzeug.exceptions import NotFound
 from service.models import Shopcart, DataValidationError, DB
 from service import app
