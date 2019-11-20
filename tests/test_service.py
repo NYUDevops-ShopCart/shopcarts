@@ -40,6 +40,7 @@ class TestShopcartServer(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         DB.session.remove()
+        DB.session.close()
 
     def setUp(self):
         """ Runs before each test """

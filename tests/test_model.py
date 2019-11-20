@@ -36,6 +36,7 @@ class TestShopcart(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         DB.session.remove()
+        DB.session.close()
 
     def setUp(self):
         DB.drop_all()    # clean up the last tests
