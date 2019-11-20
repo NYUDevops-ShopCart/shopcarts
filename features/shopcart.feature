@@ -77,12 +77,24 @@ Scenario: Delete
     And I press the "Read" button
     Then I should see the message "Read shopcart Failed"
 
-#Scenario: Update 
-	#When I visit the "Home Page"
-	#And I set the "Customer_ID" to "2"
-	#And I set the "Product_ID" to "3"
-	#And I press the "Update" button
-    
+Scenario: Update 
+	When I visit the "Home Page"
+	And I set the "Customer_ID" to "2"
+	And I set the "Product_ID" to "3"
+	And I set the "Quantity" to "450"
+	And I press the "Update" button
+	Then I should see the message "Success"
+	When I press the "Clear" button
+    Then the "Customer_ID" field should be empty
+    And the "Product_ID" field should be empty
+    And the "Text" field should be empty
+    And the "Quantity" field should be empty
+    And the "Price" field should be empty
+    When I set the "Customer_ID" to "2"
+    And I set the "Product_ID" to "3"
+    And I press the "Read" button
+    Then I should see the message "Read shopcart Success!"
+    And I should see "450" in the results
 
 Scenario: Action
     When I visit the "Home Page"
