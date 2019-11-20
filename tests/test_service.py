@@ -41,7 +41,6 @@ class TestShopcartServer(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         DB.session.remove()
-        DB.session.close()
 
     def setUp(self):
         """ Runs before each test """
@@ -52,6 +51,7 @@ class TestShopcartServer(unittest.TestCase):
     def tearDown(self):
         DB.drop_all()
         DB.session.remove()
+        DB.get_engine(app).dispose()
 
     def test_index(self):
         """ Test the Home Page """

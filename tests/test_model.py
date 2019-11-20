@@ -31,12 +31,12 @@ class TestShopcart(unittest.TestCase):
         app.debug = False
         # Set up the test database
         app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
+        app.config["SQLALCHEMY_POOL_RECYCLE"] = 280
         Shopcart.init_db(app)
 
     @classmethod
     def tearDownClass(cls):
         DB.session.remove()
-        DB.session.close()
 
     def setUp(self):
         DB.drop_all()    # clean up the last tests
@@ -45,7 +45,8 @@ class TestShopcart(unittest.TestCase):
     def tearDown(self):
         DB.drop_all()
         DB.session.remove()
-        
+        DB.get_engine(self.app).dispose()
+
     def test_serialize_a_shopcart(self):
         """ Test serialization of a Shopcart """
         shopcart = Shopcart(product_id = 1, customer_id=1,quantity=2,price=45.66,text="Headphones",state=1)
