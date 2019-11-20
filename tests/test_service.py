@@ -50,6 +50,7 @@ class TestShopcartServer(unittest.TestCase):
 
     def tearDown(self):
         DB.drop_all()
+        DB.session.remove()
 
     def test_index(self):
         """ Test the Home Page """

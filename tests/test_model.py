@@ -44,6 +44,7 @@ class TestShopcart(unittest.TestCase):
 
     def tearDown(self):
         DB.drop_all()
+        DB.session.remove()
         
     def test_serialize_a_shopcart(self):
         """ Test serialization of a Shopcart """
