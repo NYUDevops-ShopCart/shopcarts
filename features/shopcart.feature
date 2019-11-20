@@ -37,7 +37,8 @@ Scenario: Create
     Then I should see "Airpods" in the "Text" field
     And I should see "2" in the "Quantity" field
     And I should see "700" in the "Price" field
-#Scenario: List 
+
+Scenario: List 
     When I visit the "Home Page"
     And I set the "Customer_ID" to "2"
     And I press the "List" button
@@ -45,7 +46,8 @@ Scenario: Create
     And I should see "2" in the results
     And I should see "3" in the results
     And I should see "Apple Watch" in the results
-#Scenario: Query 
+
+Scenario: Query 
     When I visit the "Home Page"
     And I set the "Customer_ID" to "1"
     And I set the "Price" to "900"
@@ -55,6 +57,7 @@ Scenario: Create
     And I should see "800" in the results
     And I should not see "MacBook Pro" in the results
     And I should not see "Apple Watch" in the results
+
 #Scenario: Read
 
 Scenario: Delete
@@ -75,6 +78,11 @@ Scenario: Delete
     Then I should see the message "Read shopcart Failed"
 
 #Scenario: Update 
+	#When I visit the "Home Page"
+	#And I set the "Customer_ID" to "2"
+	#And I set the "Product_ID" to "3"
+	#And I press the "Update" button
+    
 
 Scenario: Action
     When I visit the "Home Page"
