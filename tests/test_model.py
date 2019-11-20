@@ -31,19 +31,20 @@ class TestShopcart(unittest.TestCase):
         app.debug = False
         # Set up the test database
         app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
-        Shopcart.init_db(app)
 
     @classmethod
     def tearDownClass(cls):
-        DB.session.remove()
-        DB.session.close()
+        pass
 
     def setUp(self):
+        Shopcart.init_db(app)
         DB.drop_all()    # clean up the last tests
         DB.create_all()  # make our sqlalchemy tables
 
     def tearDown(self):
         DB.drop_all()
+        DB.session.remove()
+        DB.session.close()
 
     def test_serialize_a_shopcart(self):
         """ Test serialization of a Shopcart """

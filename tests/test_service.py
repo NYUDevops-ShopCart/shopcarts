@@ -35,21 +35,22 @@ class TestShopcartServer(unittest.TestCase):
         initialize_logging(logging.INFO)
         # Set up the test database
         app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
-        init_db()
-
+        
     @classmethod
     def tearDownClass(cls):
-        DB.session.remove()
-        DB.session.close()
+        pass
 
     def setUp(self):
         """ Runs before each test """
+        init_db()
         DB.drop_all()    # clean up the last tests
         DB.create_all()  # create new tables
         self.app = app.test_client()
 
     def tearDown(self):
         DB.drop_all()
+        DB.session.remove()
+        DB.session.close()
 
     def test_index(self):
         """ Test the Home Page """
