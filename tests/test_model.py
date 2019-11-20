@@ -13,6 +13,11 @@ from service import app
 
 DATABASE_URI = os.getenv('DATABASE_URI', 'mysql+pymysql://root:password@localhost:3306/shopcarts')
 
+if 'VCAP_SERVICES' in os.environ:
+    print('Getting database from VCAP_SERVICES')
+    vcap_services = json.loads(os.environ['VCAP_SERVICES'])
+    DATABASE_URI = vcap_services['dashDB For Transactions'][0]['credentials']['uri']
+
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
