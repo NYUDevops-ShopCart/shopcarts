@@ -59,7 +59,16 @@ Scenario: Query
     And I should not see "Apple Watch" in the results
 
 #Scenario: Read
-
+    When I visit the "Home Page"
+    And I set the "Customer_ID" to "1"
+    And I set the "Product_ID" to "1"
+    And I press the "Read" button
+    Then I should see the message "Success"
+    And I should see "MacBook Pro" in the "Text" field
+    When I set the "Customer_ID" to 2000"
+    And I set the "Product_ID" to "23"
+    And I press the "Read" button
+    
 Scenario: Delete
     When I visit the "Home Page"
     And I set the "Customer_ID" to "34"
