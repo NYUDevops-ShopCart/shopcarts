@@ -26,8 +26,9 @@ $(function () {
         $("#flash_message").append(message);
     }
 
+    
     // ****************************************
-    // Create a Shopcart
+    // Create an Item
     // ****************************************
     
     $("#create-btn").click(function () {
@@ -59,31 +60,34 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
+            flash_message(res.responseText)
         });
     });
 
 
     // ****************************************
-    // Update a Pet
+    // Update Shopcart
     // ****************************************
 
     $("#update-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+        var item_text = $("#item_text").val();
+        var quantity = $("#quantity").val();
+        var price = $("#price").val();
 
         var data = {
-            "name": name,
-            "category": category,
-            "available": available
+           "customer_id": customer_id,
+            "product_id": product_id,
+            "item_text": item_text,
+            "quantity": quantity,
+            "price": price
         };
 
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/pets/" + pet_id,
+                url: "/shopcarts/" + customer_id + "/" + product_id,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -100,7 +104,7 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve a Pet
+    // Retrieve an Item
     // ****************************************
 
     $("#read-btn").click(function () {
@@ -116,17 +120,39 @@ $(function () {
         })
 
         ajax.done(function(res){
-            //alert(res.toSource())
-            update_form_data(res)
-            flash_message("Success")
+            if(!$.isEmptyObject(res)) {
+                update_form_data(res);
+                $("#search_results").empty();
+                $("#search_results").append('<table class="table-striped" cellpadding="10">');
+                var header = '<tr>'
+                header += '<th style="width:10%">Customer_ID</th>'
+                header += '<th style="width:40%">Product_ID</th>'
+                header += '<th style="width:40%">Item_Text</th>'
+                header += '<th style="width:40%">Quantity</th>'
+                header += '<th style="width:10%">Price</th></tr>'
+                $("#search_results").append(header);
+                var firstItem = "";
+                var item = res;
+                var row = "<tr><td>"+item.customer_id+"</td><td>"+item.product_id+"</td><td>"+item.text+"</td><td>"+item.quantity+"</td><td>"+item.price +"</td></tr>" ;
+                $("#search_results").append(row);
+                firstItem = item;
+                flash_message("Read shopcart Success!")
+            }
+            
         });
 
         ajax.fail(function(res){
             clear_form_data()
-            flash_message(res.responseJSON.message)
+            flash_message("Read shopcart Failed")
         });
 
+        console.log("abcdefg")
+
     });
+
+    // ****************************************
+    // Delete an item
+    // ****************************************
     
     $("#delete-btn").click(function () {
 
