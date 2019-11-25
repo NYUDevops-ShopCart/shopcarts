@@ -93,9 +93,13 @@ class TestShopcartServer(unittest.TestCase):
         shopcarts = self._create_shopcarts(10)
         test_customer_id = shopcarts[0].customer_id
         test_target_price = shopcarts[0].price
+        print("Test customer id: ",test_customer_id)
+        print("Target Price: ", test_target_price)
         customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id]
+        print(customer_id_shopcarts)
         resp = self.app.get('/shopcarts/{}?price={}/'.format(test_customer_id, test_target_price))
         data = resp.get_json()
+        print(data)
         self.assertEqual(len(data), len(customer_id_shopcarts))
         # check the data to be sure
         for shopcart in data:
