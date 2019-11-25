@@ -95,7 +95,7 @@ class TestShopcartServer(unittest.TestCase):
         test_target_price = shopcarts[0].price
         print("Test customer id: ",test_customer_id)
         print("Target Price: ", test_target_price)
-        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id]
+        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id and shopcart.price <= test_target_price]
         print(customer_id_shopcarts)
         resp = self.app.get('/shopcarts/{}?price={}/'.format(test_customer_id, test_target_price))
         data = resp.get_json()
