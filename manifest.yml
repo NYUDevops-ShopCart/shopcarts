@@ -3,7 +3,7 @@
 applications:
 - name: nyu-shopcart-service-f19
   path: .
-  instances: 1
+  instances: 2
   memory: 512M
   #random-route: true
   routes:
