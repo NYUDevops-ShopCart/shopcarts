@@ -31,20 +31,21 @@ class TestShopcart(unittest.TestCase):
         app.debug = False
         # Set up the test database
         app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
-        app.config["SQLALCHEMY_POOL_RECYCLE"] = 280
+        app.config["SQLALCHEMY_POOL_RECYCLE"] = 30
         Shopcart.init_db(app)
 
     @classmethod
     def tearDownClass(cls):
-        DB.session.remove()
+        #DB.session.remove()
+        pass
 
     def setUp(self):
         DB.drop_all()    # clean up the last tests
         DB.create_all()  # make our sqlalchemy tables
 
     def tearDown(self):
-        DB.drop_all()
         DB.session.remove()
+        DB.drop_all()
         DB.get_engine(app).dispose()
 
     def test_serialize_a_shopcart(self):

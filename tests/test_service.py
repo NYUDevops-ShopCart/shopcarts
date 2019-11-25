@@ -35,12 +35,13 @@ class TestShopcartServer(unittest.TestCase):
         initialize_logging(logging.INFO)
         # Set up the test database
         app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
-        app.config["SQLALCHEMY_POOL_RECYCLE"] = 280
+        app.config["SQLALCHEMY_POOL_RECYCLE"] = 30
         init_db()
 
     @classmethod
     def tearDownClass(cls):
-        DB.session.remove()
+        #DB.session.remove()
+        pass
 
     def setUp(self):
         """ Runs before each test """
@@ -49,8 +50,8 @@ class TestShopcartServer(unittest.TestCase):
         self.app = app.test_client()
 
     def tearDown(self):
-        DB.drop_all()
         DB.session.remove()
+        DB.drop_all()
         DB.get_engine(app).dispose()
 
     def test_index(self):
