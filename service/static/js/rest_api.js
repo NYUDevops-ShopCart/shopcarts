@@ -111,7 +111,8 @@ $(function () {
 
         var customer_id = $("#customer_id").val();
         var product_id = $("#product_id").val();
-
+        $("#search_results").empty();
+        
         var ajax = $.ajax({
             type: "GET",
             url: "/shopcarts/" + customer_id + "/" + product_id,
