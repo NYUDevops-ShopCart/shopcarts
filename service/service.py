@@ -93,9 +93,12 @@ def list_cart_iterms(customer_id):
         try:
             print('Inside function')      
             target_price = request.args.get('price')
+            print(target_price)
             app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
             items = []
             print('Query objects based on price: %s',target_price)
+            customer_id = int(customer_id)
+            target_price = float(target_price)
             items = Shopcart.query_by_target_price(customer_id, target_price)
             print(items)
             results = [item.serialize() for item in items]
