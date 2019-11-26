@@ -89,13 +89,20 @@ def list_cart_iterms(customer_id):
         results = [item.serialize() for item in items]
         return make_response(jsonify(results), status.HTTP_200_OK)
 
-    else:       
-        target_price = request.args.get('price')
-        app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
-        items = []
-        items = Shopcart.query_by_target_price(customer_id, target_price)
-        results = [item.serialize() for item in items]
-        return make_response(jsonify(results), status.HTTP_200_OK)
+    else:
+        try:
+            print('Inside function')      
+            target_price = request.args.get('price')
+            app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
+            items = []
+            print('Query objects based on price: %s',target_price)
+            items = Shopcart.query_by_target_price(customer_id, target_price)
+            print(items)
+            results = [item.serialize() for item in items]
+            return make_response(jsonify(results), status.HTTP_200_OK)
+        except Exception as ex:
+            print(ex)
+            return make_response(jsonify([]), status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE AN ITEM
