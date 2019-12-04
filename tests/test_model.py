@@ -7,11 +7,17 @@ Test cases can be run with:
 """
 import unittest
 import os
+import json
 from werkzeug.exceptions import NotFound
 from service.models import Shopcart, DataValidationError, DB
 from service import app
 
 DATABASE_URI = os.getenv('DATABASE_URI', 'mysql+pymysql://root:password@localhost:3306/shopcarts')
+
+if 'VCAP_SERVICES' in os.environ:
+    print('Getting database from VCAP_SERVICES')
+    vcap_services = json.loads(os.environ['VCAP_SERVICES'])
+    DATABASE_URI = vcap_services['dashDB For Transactions'][0]['credentials']['uri']
 
 ######################################################################
 #  T E S T   C A S E S
@@ -25,19 +31,22 @@ class TestShopcart(unittest.TestCase):
         app.debug = False
         # Set up the test database
         app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
+        app.config["SQLALCHEMY_POOL_RECYCLE"] = 30
+        Shopcart.init_db(app)
 
     @classmethod
     def tearDownClass(cls):
+        #DB.session.remove()
         pass
 
     def setUp(self):
-        Shopcart.init_db(app)
         DB.drop_all()    # clean up the last tests
         DB.create_all()  # make our sqlalchemy tables
 
     def tearDown(self):
         DB.session.remove()
         DB.drop_all()
+        DB.get_engine(app).dispose()
 
     def test_serialize_a_shopcart(self):
         """ Test serialization of a Shopcart """

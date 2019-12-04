@@ -9,6 +9,7 @@ Test cases can be run with the following:
 import unittest
 import os
 import logging
+import json
 from flask_api import status    # HTTP Status Codes
 from unittest.mock import MagicMock, patch
 from flask import jsonify
@@ -17,6 +18,10 @@ from .shopcart_factory import ShopcartFactory
 from service.service import app, init_db, initialize_logging
 
 DATABASE_URI = os.getenv('DATABASE_URI', 'mysql+pymysql://root:password@localhost:3306/shopcarts')
+if 'VCAP_SERVICES' in os.environ:
+    print('Getting database from VCAP_SERVICES')
+    vcap_services = json.loads(os.environ['VCAP_SERVICES'])
+    DATABASE_URI = vcap_services['dashDB For Transactions'][0]['credentials']['uri']
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
@@ -30,14 +35,16 @@ class TestShopcartServer(unittest.TestCase):
         initialize_logging(logging.INFO)
         # Set up the test database
         app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
+        app.config["SQLALCHEMY_POOL_RECYCLE"] = 30
+        init_db()
 
     @classmethod
     def tearDownClass(cls):
+        #DB.session.remove()
         pass
 
     def setUp(self):
         """ Runs before each test """
-        init_db()
         DB.drop_all()    # clean up the last tests
         DB.create_all()  # create new tables
         self.app = app.test_client()
@@ -45,6 +52,7 @@ class TestShopcartServer(unittest.TestCase):
     def tearDown(self):
         DB.session.remove()
         DB.drop_all()
+        DB.get_engine(app).dispose()
 
     def test_index(self):
         """ Test the Home Page """
@@ -85,8 +93,8 @@ class TestShopcartServer(unittest.TestCase):
         shopcarts = self._create_shopcarts(10)
         test_customer_id = shopcarts[0].customer_id
         test_target_price = shopcarts[0].price
-        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id]
-        resp = self.app.get('/shopcarts/{}?price={}/'.format(test_customer_id, test_target_price))
+        customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id and shopcart.price <= test_target_price]
+        resp = self.app.get('/shopcarts/{}?price={}'.format(test_customer_id, test_target_price))
         data = resp.get_json()
         self.assertEqual(len(data), len(customer_id_shopcarts))
         # check the data to be sure

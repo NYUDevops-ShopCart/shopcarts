@@ -89,7 +89,7 @@ def list_cart_iterms(customer_id):
         results = [item.serialize() for item in items]
         return make_response(jsonify(results), status.HTTP_200_OK)
 
-    else:       
+    else:    
         target_price = request.args.get('price')
         app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
         items = []
