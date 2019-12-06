@@ -25,7 +25,8 @@ api = Api(app,
           description='This is a sample Shopcart store server.',
           default='shopcarts',
           default_label='Shopcart operations',
-          doc='/apidocs/index.html'
+          doc='/apidocs',
+          prefix='/apidocs'
          )
 
 # Define the model so that the docs reflect what can be sent
