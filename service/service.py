@@ -16,39 +16,7 @@ from service.models import Shopcart, DataValidationError, SHOPCART_ITEM_STAGE
 from . import app
 
 ORDER_HOST_URL = "http://localhost:1234"
-######################################################################
-# Configure Swagger
-######################################################################
-api = Api(app,
-          version='1.0.0',
-          title='Shopcart RESTful Service',
-          description='This is a sample Shopcart store server.',
-          default='shopcarts',
-          default_label='Shopcart operations',
-          doc='/apidocs',
-          prefix='/apidocs'
-         )
 
-# Define the model so that the docs reflect what can be sent
-shopcart_model = api.model('Pet', {
-    'id': fields.String(readOnly=True,
-                         description='The unique id assigned internally by service'),
-    'product_id': fields.String(required=True,
-                          description='The name of the Pet'),
-    'category': fields.String(required=True,
-                              description='The category of Pet (e.g., dog, cat, fish, etc.)'),
-    'available': fields.Boolean(required=True,
-                                description='Is the Pet avaialble for purchase?')
-})
-
-create_model = api.model('Pet', {
-    'name': fields.String(required=True,
-                          description='The name of the Pet'),
-    'category': fields.String(required=True,
-                              description='The category of Pet (e.g., dog, cat, fish, etc.)'),
-    'available': fields.Boolean(required=True,
-                                description='Is the Pet avaialble for purchase?')
-}) 
 
 ######################################################################
 # Error Handlers
@@ -111,6 +79,17 @@ def index():
     """ Root URL response """
     return app.send_static_file('index.html')
 
+######################################################################
+# Configure Swagger
+######################################################################
+api = Api(app,
+          version='1.0.0',
+          title='Shopcart RESTful Service',
+          description='This is a sample Shopcart store server.',
+          default='shopcarts',
+          default_label='Shopcart operations',
+          doc='/apidocs/index.html'
+         )
 ######################################################################
 # LIST ALL ITEMS IN ONE SHOP CART ---
 ######################################################################
@@ -224,7 +203,7 @@ def delete_cart_item(customer_id, product_id):
 # MOVE A SHOPCART ITEM TO CHECKOUT
 ######################################################################
 
-@api.route('/shopcarts/<int:customer_id>/<int:product_id>/checkout', methods=['PUT'])
+@api.route('/shopcarts/<int:customer_id>/<int:product_id>/checkout',strict_slashes=False)
 @api.param('customer_id','Customer Identifier')
 @api.param('product_id','Product Identifier')
 class ShopcartCheckout(Resource):
