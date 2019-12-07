@@ -5,6 +5,7 @@ import requests
 from flask import Flask, jsonify, request, url_for, make_response, abort, json
 from flask_api import status    # HTTP Status Codes
 from werkzeug.exceptions import NotFound
+from flask_restplus import Api, Resource, fields, reqparse, inputs
 
 # SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
@@ -15,6 +16,8 @@ from service.models import Shopcart, DataValidationError, SHOPCART_ITEM_STAGE
 from . import app
 
 ORDER_HOST_URL = "http://localhost:1234"
+
+
 ######################################################################
 # Error Handlers
 ######################################################################
@@ -75,6 +78,49 @@ def internal_server_error(error):
 def index():
     """ Root URL response """
     return app.send_static_file('index.html')
+
+######################################################################
+# Configure Swagger
+######################################################################
+api = Api(app,
+          version='1.0.0',
+          title='Shopcart RESTful Service',
+          description='This is a sample Shopcart store server.',
+          default='shopcarts',
+          default_label='Shopcart operations',
+          doc='/apidocs/index.html'
+         )
+
+# Define the model so that the docs reflect what can be sent
+shopcart_model = api.model('Shopcart', {
+    'id': fields.String(readOnly=True,
+                         description='The unique id assigned internally by service'),
+    'product_id': fields.String(required=True,
+                          description='Product Identifier'),
+    'customer_id': fields.String(required=True,
+                              description='Customer Identifier'),
+    'quantity': fields.Boolean(required=True,
+                                description='Quantity of the product'),
+    'price': fields.String(required=True,
+                              description='Price'),
+    'text': fields.String(required=True,
+                              description='Name of the product'),
+    'state': fields.String(required=True,
+                              description='State of the product in shopcart.(ADDED:0 (Default), REMOVED:1, DONE:2)')
+})
+
+create_model = api.model('Shopcart', {
+    'product_id': fields.String(required=True,
+                          description='Product Identifier'),
+    'customer_id': fields.String(required=True,
+                              description='Customer Identifier'),
+    'quantity': fields.Boolean(required=True,
+                                description='Quantity of the product'),
+    'price': fields.String(required=True,
+                              description='Price'),
+    'text': fields.String(required=True,
+                              description='Name of the product')
+})
 
 ######################################################################
 # LIST ALL ITEMS IN ONE SHOP CART ---
@@ -188,37 +234,53 @@ def delete_cart_item(customer_id, product_id):
 ######################################################################
 # MOVE A SHOPCART ITEM TO CHECKOUT
 ######################################################################
-@app.route('/shopcarts/<int:customer_id>/<int:product_id>/checkout', methods=['PUT'])
-def move_cart_item_to_checkout(customer_id, product_id):
-    app.logger.info('Request to move product with id %s for customer with id %s to checkout',
-                    product_id, customer_id)
-    cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
-    if cart_item is None:
-        app.logger.info("No product with id %s found for customer id %s", product_id, customer_id)
-        return make_response(jsonify(message='Invalid request params'), status.HTTP_400_BAD_REQUEST)
 
-    try:
-        post_url = "{}/orders".format(ORDER_HOST_URL)
-        request_data = {}
-        request_data['customer_id'] = cart_item.customer_id
-        request_data['product_id'] = cart_item.product_id
-        request_data['price'] = cart_item.price
-        request_data['quantity'] = cart_item.quantity
-        response = requests.post(url=post_url, json=request_data)
-        app.logger.info("Product with id %s for customer id %s moved from shopcart to order",
-                        cart_item.product_id, cart_item.customer_id)
-    except Exception as ex:
-        app.logger.error("Something went wrong while moving product from shopcart to order %s", ex)
+@api.route('/shopcarts/<int:customer_id>/<int:product_id>/checkout',strict_slashes=False)
+@api.param('customer_id','Customer Identifier')
+@api.param('product_id','Product Identifier')
+class ShopcartCheckout(Resource):
+    # Move a product from to order SHOPCART_ITEM_STAGE
+    
+    @api.doc('shopcart_checkout')
+    @api.response(400,'Invalid request params')
+    @api.response(200,'Product moved to Order Successfully')
+    def put(self,customer_id,product_id):
+        """
+        Purchase an item from shopcart
 
-    cart_item.state = SHOPCART_ITEM_STAGE['DONE']
-    cart_item.save()
-    app.logger.info('Shopcart with product id %s and customer id %s moved to checkout',
+        This endpoint will place an order for the selected product in the shopcart
+        """
+        app.logger.info('Request to move product with id %s for customer with id %s to checkout',
                     product_id, customer_id)
-    return make_response(jsonify(message="Product moved to Order Successfully",
-                                 data=cart_item.serialize()), status.HTTP_200_OK)
+        cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+        if cart_item is None:
+            app.logger.info("No product with id %s found for customer id %s", product_id, customer_id)
+            api.abort(status.HTTP_400_BAD_REQUEST, 'No product with id [{}] found for customer id [{}].'
+                .format(product_id,customer_id))
+            #return make_response(jsonify(message='Invalid request params'), status.HTTP_400_BAD_REQUEST)
+
+        try:
+            post_url = "{}/orders".format(ORDER_HOST_URL)
+            request_data = {}
+            request_data['customer_id'] = cart_item.customer_id
+            request_data['product_id'] = cart_item.product_id
+            request_data['price'] = cart_item.price
+            request_data['quantity'] = cart_item.quantity
+            response = requests.post(url=post_url, json=request_data)
+            app.logger.info("Product with id %s for customer id %s moved from shopcart to order",
+                            cart_item.product_id, cart_item.customer_id)
+        except Exception as ex:
+            app.logger.error("Something went wrong while moving product from shopcart to order %s", ex)
+
+        cart_item.state = SHOPCART_ITEM_STAGE['DONE']
+        cart_item.save()
+        app.logger.info('Shopcart with product id %s and customer id %s moved to checkout',
+                        product_id, customer_id)
+        return make_response(jsonify(message="Product moved to Order Successfully",
+                                     data=cart_item.serialize()), status.HTTP_200_OK)
 
 ######################################################################
-# DELETE ALL SHOPCART ITEMS
+# DELETE ALL SHOPCART ITEMS FOR TESTING ONLY
 ######################################################################
 @app.route('/shopcarts/reset', methods=['DELETE'])
 def delete_cart_items():
