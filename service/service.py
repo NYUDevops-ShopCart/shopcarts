@@ -90,6 +90,38 @@ api = Api(app,
           default_label='Shopcart operations',
           doc='/apidocs/index.html'
          )
+
+# Define the model so that the docs reflect what can be sent
+shopcart_model = api.model('Shopcart', {
+    'id': fields.String(readOnly=True,
+                         description='The unique id assigned internally by service'),
+    'product_id': fields.String(required=True,
+                          description='Product Identifier'),
+    'customer_id': fields.String(required=True,
+                              description='Customer Identifier'),
+    'quantity': fields.Boolean(required=True,
+                                description='Quantity of the product'),
+    'price': fields.String(required=True,
+                              description='Price'),
+    'text': fields.String(required=True,
+                              description='Name of the product'),
+    'state': fields.String(required=True,
+                              description='State of the product in shopcart.(ADDED:0 (Default), REMOVED:1, DONE:2)')
+})
+
+create_model = api.model('Pet', {
+    'product_id': fields.String(required=True,
+                          description='Product Identifier'),
+    'customer_id': fields.String(required=True,
+                              description='Customer Identifier'),
+    'quantity': fields.Boolean(required=True,
+                                description='Quantity of the product'),
+    'price': fields.String(required=True,
+                              description='Price'),
+    'text': fields.String(required=True,
+                              description='Name of the product')
+})
+
 ######################################################################
 # LIST ALL ITEMS IN ONE SHOP CART ---
 ######################################################################
@@ -208,6 +240,7 @@ def delete_cart_item(customer_id, product_id):
 @api.param('product_id','Product Identifier')
 class ShopcartCheckout(Resource):
     # Move a product from to order SHOPCART_ITEM_STAGE
+    @api.doc('shopcart_checkout')
     @api.response(400,'Invalid request params')
     def put(self,customer_id,product_id):
         app.logger.info('Request to move product with id %s for customer with id %s to checkout',
