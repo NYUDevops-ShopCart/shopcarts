@@ -109,7 +109,7 @@ shopcart_model = api.model('Shopcart', {
                               description='State of the product in shopcart.(ADDED:0 (Default), REMOVED:1, DONE:2)')
 })
 
-create_model = api.model('Pet', {
+create_model = api.model('Shopcart', {
     'product_id': fields.String(required=True,
                           description='Product Identifier'),
     'customer_id': fields.String(required=True,
@@ -240,9 +240,16 @@ def delete_cart_item(customer_id, product_id):
 @api.param('product_id','Product Identifier')
 class ShopcartCheckout(Resource):
     # Move a product from to order SHOPCART_ITEM_STAGE
+    
     @api.doc('shopcart_checkout')
     @api.response(400,'Invalid request params')
+    @api.response(200,'Product moved to Order Successfully')
     def put(self,customer_id,product_id):
+        """
+        Purchase an item from shopcart
+
+        This endpoint will place an order for the selected product in the shopcart
+        """
         app.logger.info('Request to move product with id %s for customer with id %s to checkout',
                     product_id, customer_id)
         cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
