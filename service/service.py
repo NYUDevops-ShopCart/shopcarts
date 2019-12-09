@@ -163,33 +163,58 @@ def get_cart_item(customer_id, product_id):
 ######################################################################
 # ADD A NEW ITEM TO THE SHOP CART
 ######################################################################
-@app.route('/shopcarts/<int:customer_id>', methods=['POST'])
-def create_cart_item(customer_id):
+# @app.route('/shopcarts/<int:customer_id>', methods=['POST'])
+# def create_cart_item(customer_id):
 
-    """
-    Creates a new item entry for the cart
-    """
-    app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
-    check_content_type('application/json')
-    # check if coustomer_id are the same
-    if not customer_id == int(request.get_json()['customer_id']):
-        # abort(400, description="coustomer id doesn't match")
-        app.logger.info("coustomer id doesn't match")
-        return make_response("coustomer id doesn't match", status.HTTP_400_BAD_REQUEST)
-    product_id = request.get_json()['product_id']
-    shopcart = Shopcart()
-    # check if the item is already in this customer's cart
-    if Shopcart.check_cart_exist(customer_id, product_id):
-        # abort(409, description="item already in the cart")
-        return make_response("item already in the cart", status.HTTP_409_CONFLICT)
-    shopcart.deserialize(request.get_json())
-    shopcart.save()
-    message = shopcart.serialize()
-    location_url = url_for('get_cart_item', customer_id=customer_id, product_id=product_id)
-    return make_response(jsonify(message), status.HTTP_201_CREATED,
-                         {
-                             'Location': location_url
-                         })
+#     """
+#     Creates a new item entry for the cart
+#     """
+#     app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
+#     check_content_type('application/json')
+#     # check if coustomer_id are the same
+#     if not customer_id == int(request.get_json()['customer_id']):
+#         # abort(400, description="coustomer id doesn't match")
+#         app.logger.info("coustomer id doesn't match")
+#         return make_response("coustomer id doesn't match", status.HTTP_400_BAD_REQUEST)
+#     product_id = request.get_json()['product_id']
+#     shopcart = Shopcart()
+#     # check if the item is already in this customer's cart
+#     if Shopcart.check_cart_exist(customer_id, product_id):
+#         # abort(409, description="item already in the cart")
+#         return make_response("item already in the cart", status.HTTP_409_CONFLICT)
+#     shopcart.deserialize(request.get_json())
+#     shopcart.save()
+#     message = shopcart.serialize()
+#     location_url = url_for('get_cart_item', customer_id=customer_id, product_id=product_id)
+#     return make_response(jsonify(message), status.HTTP_201_CREATED,
+#                          {
+#                              'Location': location_url
+#                          })
+@api.route('/shopcarts/<int:customer_id>', strict_slashes=False)
+@api.param('customer_id','Customer Identifier')
+class ShopcartResource(Resource):
+    @api.doc('create_item')
+    @api.expect(create_model)
+    @api.response(400, "Coustomer id doesn't match")
+    @api.response(409, 'Item already in the cart')
+    @api.marshal_with(create_model, code=201)
+    def post(self, customer_id):
+        """
+        Creates a new item entry for the cart
+        """
+        app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
+        if not customer_id == int(api.payload['customer_id']):
+            app.logger.info("Coustomer id doesn't match")
+            abort(400, description="Coustomer id doesn't match")
+        product_id = api.payload['product_id']
+        shopcart = Shopcart()
+        shopcart.deserialize(api.payload)
+        shopcart.save()
+        location_url = api.url_for(ShopcartItem, customer_id = customer_id,
+                                    product_id = product_id, _extrenal = True)
+        return shopcart.serialize(), status.HTTP_201_CREATED, {'Location': location_url}
+
+
 
 ######################################################################
 # UPDATE AN EXISTING SHOPCART ITEM
