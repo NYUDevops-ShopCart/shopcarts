@@ -124,7 +124,7 @@ create_model = api.model('Shopcart', {
 
 shopcart_item_args = reqparse.RequestParser()
 shopcart_item_args.add_argument('price', type=str, required=False,
-                                help='List shocpart items by target_price')
+                                help='List shocpart items (cheapter than target_price if there exists one)')
 
 ######################################################################
 # LIST ALL ITEMS IN ONE SHOP CART ---
@@ -135,7 +135,6 @@ class shopcartsCollection(Resource):
     """ Handles all interactions with collections of Shopcarts """
     @api.doc('shopcart_list')
     @api.expect(shopcart_item_args, validate=True)
-    @api.response(404,'No items for this customer')
     @api.marshal_with(shopcart_model)
     #@app.route('/shopcarts/<int:customer_id>', methods=['GET'])
     def get(customer_id):
@@ -145,18 +144,14 @@ class shopcartsCollection(Resource):
             items = []
             items = Shopcart.find_by_customer_id(customer_id)
             results = [item.serialize() for item in items]
-            if results is None or len(results) == 0:
-                api.abort(404, "No items for this customer.")
             return make_response(jsonify(results), status.HTTP_200_OK)
 
-        else:    
+        else:
             target_price = request.args.get('price')
             app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
             items = []
             items = Shopcart.query_by_target_price(customer_id, target_price)
             results = [item.serialize() for item in items]
-            if results is None or len(results) == 0:
-                api.abort(404, "No items for this customer.")
             return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
@@ -256,7 +251,7 @@ def delete_cart_item(customer_id, product_id):
 @api.param('product_id','Product Identifier')
 class ShopcartCheckout(Resource):
     # Move a product from to order SHOPCART_ITEM_STAGE
-    
+
     @api.doc('shopcart_checkout')
     @api.response(400,'Invalid request params')
     @api.response(200,'Product moved to Order Successfully')
