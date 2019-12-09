@@ -125,23 +125,32 @@ create_model = api.model('Shopcart', {
 ######################################################################
 # LIST ALL ITEMS IN ONE SHOP CART ---
 ######################################################################
-@app.route('/shopcarts/<int:customer_id>', methods=['GET'])
-def list_cart_iterms(customer_id):
-    """ Returns list of all of the shop cart items"""
-    if request.args.get('price') == None:
-        app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
-        items = []
-        items = Shopcart.find_by_customer_id(customer_id)
-        results = [item.serialize() for item in items]
-        return make_response(jsonify(results), status.HTTP_200_OK)
+@api.route('/shopcarts/<int:customer_id>', strict_slashes=False)
+@api.param('customer_id','Customer Identifier')
+class shopcartsCollection(Resource):
+    """ Handles all interactions with collections of Shopcarts """
+    @api.doc('shopcart_list')
+    @api.response(400,'Invalid request params')
+    @api.response(200,'List products Successfully')
+    @api.response(404, 'No items for this customer')
+    @api.marshal_with(shopcart_model)
+    #@app.route('/shopcarts/<int:customer_id>', methods=['GET'])
+    def list_cart_iterms(customer_id):
+        """ Returns list of all of the shop cart items"""
+        if request.args.get('price') == None:
+            app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
+            items = []
+            items = Shopcart.find_by_customer_id(customer_id)
+            results = [item.serialize() for item in items]
+            return make_response(jsonify(results), status.HTTP_200_OK)
 
-    else:    
-        target_price = request.args.get('price')
-        app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
-        items = []
-        items = Shopcart.query_by_target_price(customer_id, target_price)
-        results = [item.serialize() for item in items]
-        return make_response(jsonify(results), status.HTTP_200_OK)
+        else:    
+            target_price = request.args.get('price')
+            app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
+            items = []
+            items = Shopcart.query_by_target_price(customer_id, target_price)
+            results = [item.serialize() for item in items]
+            return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE AN ITEM
