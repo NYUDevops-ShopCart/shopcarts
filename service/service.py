@@ -132,7 +132,7 @@ class shopcartsCollection(Resource):
     @api.doc('shopcart_list')
     @api.response(400,'Invalid request params')
     @api.response(200,'List products Successfully')
-    @api.response(404, 'No items for this customer')
+    @api.response(404,'No items for this customer')
     @api.marshal_with(shopcart_model)
     #@app.route('/shopcarts/<int:customer_id>', methods=['GET'])
     def list_cart_iterms(customer_id):
