@@ -138,7 +138,7 @@ class shopcartsCollection(Resource):
     @api.response(404,'No items for this customer')
     @api.marshal_with(shopcart_model)
     #@app.route('/shopcarts/<int:customer_id>', methods=['GET'])
-    def list_cart_iterms(customer_id):
+    def get(customer_id):
         """ Returns list of all of the shop cart items"""
         if request.args.get('price') == None:
             app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
