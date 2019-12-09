@@ -122,16 +122,19 @@ create_model = api.model('Shopcart', {
                               description='Name of the product')
 })
 
+shopcart_item_args = reqparse.RequestParser()
+shopcart_item_args.add_argument('price', type=str, required=False,
+                                help='List shocpart items by target_price')
+
 ######################################################################
 # LIST ALL ITEMS IN ONE SHOP CART ---
 ######################################################################
-@api.route('/shopcarts/<int:customer_id>', strict_slashes=False)
+@api.route('/shopcarts/<int:customer_id>',strict_slashes=False)
 @api.param('customer_id','Customer Identifier')
 class shopcartsCollection(Resource):
     """ Handles all interactions with collections of Shopcarts """
     @api.doc('shopcart_list')
-    @api.response(400,'Invalid request params')
-    @api.response(200,'List products Successfully')
+    @api.expect(shopcart_item_args, validate=True)
     @api.response(404,'No items for this customer')
     @api.marshal_with(shopcart_model)
     #@app.route('/shopcarts/<int:customer_id>', methods=['GET'])
@@ -142,6 +145,8 @@ class shopcartsCollection(Resource):
             items = []
             items = Shopcart.find_by_customer_id(customer_id)
             results = [item.serialize() for item in items]
+            if results is None or len(results) == 0:
+                api.abort(404, "No items for this customer.")
             return make_response(jsonify(results), status.HTTP_200_OK)
 
         else:    
@@ -150,6 +155,8 @@ class shopcartsCollection(Resource):
             items = []
             items = Shopcart.query_by_target_price(customer_id, target_price)
             results = [item.serialize() for item in items]
+            if results is None or len(results) == 0:
+                api.abort(404, "No items for this customer.")
             return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
