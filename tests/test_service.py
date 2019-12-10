@@ -74,7 +74,7 @@ class TestShopcartServer(unittest.TestCase):
             test_shopcart.id = new_shopcart['id']
             shopcarts.append(test_shopcart)
         return shopcarts
-    
+
     def test_list_cart_iterms(self):
         """ List all items of the shopcart for a customer"""
         shopcarts = self._create_shopcarts(10)
@@ -94,9 +94,12 @@ class TestShopcartServer(unittest.TestCase):
         test_customer_id = shopcarts[0].customer_id
         test_target_price = shopcarts[0].price
         customer_id_shopcarts = [shopcart for shopcart in shopcarts if shopcart.customer_id == test_customer_id and shopcart.price <= test_target_price]
+        #print(customer_id_shopcarts)
         resp = self.app.get('/shopcarts/{}?price={}'.format(test_customer_id, test_target_price))
+        #print(resp.get_json())
         data = resp.get_json()
         self.assertEqual(len(data), len(customer_id_shopcarts))
+        #print(data)
         # check the data to be sure
         for shopcart in data:
             self.assertTrue(shopcart['customer_id'] == test_customer_id and float(shopcart['price']) <= test_target_price)
@@ -156,14 +159,14 @@ class TestShopcartServer(unittest.TestCase):
     							content_type='applicatoin/json')
     	self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
     	self.assertEqual(len(resp.data), 0)
-    	# make sure it is deleted 
+    	# make sure it is deleted
     	resp = self.app.get('/shopcarts/{}'.format(test_item.customer_id) + '/{}'.format(test_item.product_id),
     							content_type='application/json')
     	self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_create_shopcart(self):
         """ Create the item in the shopcart """
-        # create an item 
+        # create an item
         test_item = ShopcartFactory()
         resp = self.app.post('/shopcarts/{}'.format(test_item.customer_id), json=test_item.serialize(), content_type='application/json')
         print(test_item.quantity)
@@ -175,14 +178,14 @@ class TestShopcartServer(unittest.TestCase):
         self.assertEqual(data['quantity'], test_item.quantity, 'quantity not the same')
         self.assertEqual(data['text'], test_item.text, 'text not the same')
         test_item.quantity += 1
-        # create again to update item 
+        # create again to update item
         print(test_item.quantity)
         resp = self.app.post('/shopcarts/{}'.format(test_item.customer_id), json=test_item.serialize(), content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
     def test_retrieve_shopcart(self):
         """ Retrieve the item from the shopcart """
-        # create an item 
+        # create an item
         test_item = ShopcartFactory()
         self.app.post('/shopcarts/{}'.format(test_item.customer_id),
                             json=test_item.serialize(),
@@ -206,13 +209,13 @@ class TestShopcartServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data= resp.get_json()
         self.assertEqual(data['data']['state'],2)
-    
+
     def test_checkout_shopcart_bad_request(self):
         """ Checkout item in shopcart to order stage when item does not exist"""
         resp = self.app.put('/shopcarts/{}/{}/checkout'.format(564,546),
                                 content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
     def test_delete_all_shopcart(self):
     	""" Delete all items in the shopcart table"""
     	test_item = self._create_shopcarts(1)[0]
@@ -221,26 +224,26 @@ class TestShopcartServer(unittest.TestCase):
     	self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
     	self.assertEqual(len(resp.data), 0)
 
-    @patch('service.models.Shopcart.find_by_customer_id')
-    def test_bad_request(self, bad_request_mock):
-        """ Test a Bad Request error from Find by Customer ID """
-        bad_request_mock.side_effect = DataValidationError()
-        resp = self.app.get('/shopcarts/{}'.format(1))
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-    
+    # @patch('service.models.Shopcart.find_by_customer_id')
+    # def test_bad_request(self, bad_request_mock):
+    #     """ Test a Bad Request error from Find by Customer ID """
+    #     bad_request_mock.side_effect = DataValidationError()
+    #     resp = self.app.get('/shopcarts/{}'.format(1))
+    #     self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
     @patch('service.models.Shopcart.find_by_customer_id')
     def test_mock_search_data(self, shopcart_find_by_customer_id_mock):
         """ Test showing how to mock data """
         shopcart_find_by_customer_id_mock.return_value = [MagicMock(serialize=lambda: {'customer_id': 1})]
         resp = self.app.get('/shopcarts/{}'.format(1))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-    
+
     def test_not_found_error_handler(self):
         """ Error handler for 404 not found """
         resp = self.app.get('/shopcarts/hello',
                             content_type='application/json')
         self.assertEqual(resp.status_code,status.HTTP_404_NOT_FOUND)
-    
+
     def test_bad_request_error_handler(self):
         """ Error handler for 400 bad request """
         request_data={}
@@ -249,13 +252,13 @@ class TestShopcartServer(unittest.TestCase):
                             json= request_data,
                             content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
     def test_invalid_request_type_handler(self):
         """ Error handler for invalid request type 405 """
         resp = self.app.put('/shopcarts/{}'.format(1),
                             content_type='application/json')
         self.assertEqual(resp.status_code,status.HTTP_405_METHOD_NOT_ALLOWED)
-    
+
     def test_request_content_type(self):
         """ Test request header content type and 415 error handler"""
         test_item = ShopcartFactory()
@@ -271,4 +274,3 @@ class TestShopcartServer(unittest.TestCase):
                             json= request_data,
                             content_type='application/json')
         self.assertEqual(resp.status_code,status.HTTP_500_INTERNAL_SERVER_ERROR)
-
