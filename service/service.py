@@ -93,44 +93,42 @@ api = Api(app,
 
 # Define the model so that the docs reflect what can be sent
 shopcart_model = api.model('Shopcart', {
-    'id': fields.String(readOnly=True,
+    'id': fields.Integer(readOnly=True,
                          description='The unique id assigned internally by service'),
-    'product_id': fields.String(required=True,
-                          description='Product Identifier'),
+    'product_id': fields.Integer(required=True,
+                                 description='Product Identifier'),
     'customer_id': fields.Integer(required=True,
-                              description='Customer Identifier'),
-    'quantity': fields.String(required=True,
+                                   description='Customer Identifier'),
+    'quantity': fields.Integer(required=True,
                                 description='Quantity of the product'),
-    'price': fields.String(required=True,
-                              description='Price'),
+    'price': fields.Float(required=True,
+                          description='Price'),
     'text': fields.String(required=True,
-                              description='Name of the product'),
-    'state': fields.String(required=True,
-                              description='State of the product in shopcart.(ADDED:0 (Default), REMOVED:1, DONE:2)')
+                          description='Name of the product'),
+    'state': fields.Integer(required=True,
+                            description='State of the product in shopcart.(ADDED:0 (Default), REMOVED:1, DONE:2)')
 })
 
 create_model = api.model('Shopcart', {
-    'product_id': fields.String(required=True,
-                          description='Product Identifier'),
-    'customer_id': fields.String(required=True,
-                              description='Customer Identifier'),
-    'quantity': fields.String(required=True,
+    'product_id': fields.Integer(required=True,
+                                 description='Product Identifier'),
+    'customer_id': fields.Integer(required=True,
+                                  description='Customer Identifier'),
+    'quantity': fields.Integer(required=True,
                                 description='Quantity of the product'),
-    'price': fields.String(required=True,
-                              description='Price'),
+    'price': fields.Float(required=True,
+                           description='Price'),
     'text': fields.String(required=True,
                               description='Name of the product')
 })
 
-shopcart_item_args = reqparse.RequestParser()
-shopcart_item_args.add_argument('price', type=str, required=False,
-                                help='List shocpart items by target_price')
-
+shopcart_args = reqparse.RequestParser()
+shopcart_args.add_argument('price', type=float, required=False, help='List shocpart items (cheapter than target_price if there exists one)')
 ######################################################################
 # LIST ALL ITEMS IN ONE SHOP CART ---
 ######################################################################
-@api.route('/shopcarts/<int:customer_id>',strict_slashes=False)
-@api.param('customer_id','Customer Identifier')
+@api.route('/shopcarts/<int:customer_id>', strict_slashes=False)
+@api.param('customer_id', 'Customer Identifier')
 class shopcartsCollection(Resource):
     """ Handles all interactions with collections of Shopcarts """
     @api.doc('shopcart_list')
@@ -258,7 +256,7 @@ def delete_cart_item(customer_id, product_id):
 @api.param('product_id','Product Identifier')
 class ShopcartCheckout(Resource):
     # Move a product from to order SHOPCART_ITEM_STAGE
-    
+
     @api.doc('shopcart_checkout')
     @api.response(400,'Invalid request params')
     @api.response(200,'Product moved to Order Successfully')
