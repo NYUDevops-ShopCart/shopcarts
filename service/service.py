@@ -132,7 +132,7 @@ shopcart_args.add_argument('price', type=float, required=False, help='List shocp
 class shopcartsCollection(Resource):
     """ Handles all interactions with collections of Shopcarts """
     @api.doc('shopcart_list')
-    @api.expect(shopcart_item_args, validate=True)
+    @api.expect(shopcart_args, validate=True)
     @api.response(404,'No items for this customer')
     @api.marshal_list_with(shopcart_model)
     # @app.route('/shopcarts/<int:customer_id>', methods=['GET'])
@@ -160,7 +160,7 @@ class shopcartsCollection(Resource):
             return results, status.HTTP_200_OK
 
 ######################################################################
-# RETRIEVE AN ITEM  
+# RETRIEVE AN ITEM
 ######################################################################
 @app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['GET'])
 def get_cart_item(customer_id, product_id):
