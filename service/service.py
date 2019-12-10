@@ -129,7 +129,7 @@ shopcart_args.add_argument('price', type=float, required=False, help='List shocp
 ######################################################################
 @api.route('/shopcarts/<int:customer_id>', strict_slashes=False)
 @api.param('customer_id', 'Customer Identifier')
-class ShopcartsItem(Resource):
+class ShopcartItem(Resource):
     """ Handles all interactions with items of Shopcarts """
     @api.doc('shopcart_list')
     @api.expect(shopcart_args, validate=True)
