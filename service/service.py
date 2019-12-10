@@ -219,17 +219,30 @@ def update_cart_item(customer_id, product_id, requested_quantity=None):
 ######################################################################
 # DELETE A SHOPCART ITEM
 ######################################################################
-@app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['DELETE'])
-def delete_cart_item(customer_id, product_id):
-    app.logger.info('Request to delete an existing shopcart item with customer id: %s and product_id: %s',
-                    customer_id, product_id)
-    cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+@api.route('/shopcarts/<int:customer_id>/<int:product_id>',strict_slashes=False)
+@api.param('customer_id','Customer Identifier')
+@api.param('product_id','Product Identifier')
+class ShopcartResource(Resource):
+    #------------------------------------------------------------------
+    # DELETE A Shopcart Item 
+    #------------------------------------------------------------------
+    @api.doc('shopcart_delete')
+    @api.response(204,'Item deleted')
+    def delete(self, customer_id, product_id):
+        """
+        Delete an item from shopcart
 
-    if cart_item:
-        app.logger.info('Found item with customer id and product id and it will be deleted')
-        cart_item.delete()
-    # should return 204 whether item is found or not found as discussed in class
-    return make_response('', status.HTTP_204_NO_CONTENT)
+        This endpoint will delete a item for the selected product in the shopcart
+        """
+        app.logger.info('Request to delete an existing shopcart item with customer id: %s and product_id: %s',
+                    customer_id, product_id)
+        cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+
+        if cart_item:
+            app.logger.info('Found item with customer id and product id and it will be deleted')
+            cart_item.delete()
+        # should return 204 whether item is found or not found as discussed in class
+        return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 # MOVE A SHOPCART ITEM TO CHECKOUT
