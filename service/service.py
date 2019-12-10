@@ -133,7 +133,7 @@ class shopcartsCollection(Resource):
     """ Handles all interactions with collections of Shopcarts """
     @api.doc('shopcart_list')
     @api.expect(shopcart_args, validate=True)
-    @api.response(404,'No items for this customer')
+    #@api.response(404,'No items for this customer')
     @api.marshal_list_with(shopcart_model)
     # @app.route('/shopcarts/<int:customer_id>', methods=['GET'])
     def get(self, customer_id):
@@ -143,8 +143,8 @@ class shopcartsCollection(Resource):
             items = []
             items = Shopcart.find_by_customer_id(customer_id)
             results = [item.serialize() for item in items]
-            if results is None or len(results) == 0:
-                api.abort(404, "No items for this customer.")
+            #if results is None or len(results) == 0:
+            #    api.abort(404, "No items for this customer.")
             return results, status.HTTP_200_OK
 
         else:
@@ -155,8 +155,8 @@ class shopcartsCollection(Resource):
             items = Shopcart.query_by_target_price(customer_id, target_price)
             results = [item.serialize() for item in items]
             print(results)
-            if results is None or len(results) == 0:
-                api.abort(404, "No items for this customer.")
+            #if results is None or len(results) == 0:
+            #    api.abort(404, "No items for this customer.")
             return results, status.HTTP_200_OK
 
 ######################################################################
