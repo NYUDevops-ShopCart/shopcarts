@@ -97,9 +97,9 @@ shopcart_model = api.model('Shopcart', {
                          description='The unique id assigned internally by service'),
     'product_id': fields.String(required=True,
                           description='Product Identifier'),
-    'customer_id': fields.String(required=True,
+    'customer_id': fields.Integer(required=True,
                               description='Customer Identifier'),
-    'quantity': fields.Boolean(required=True,
+    'quantity': fields.String(required=True,
                                 description='Quantity of the product'),
     'price': fields.String(required=True,
                               description='Price'),
@@ -114,7 +114,7 @@ create_model = api.model('Shopcart', {
                           description='Product Identifier'),
     'customer_id': fields.String(required=True,
                               description='Customer Identifier'),
-    'quantity': fields.Boolean(required=True,
+    'quantity': fields.String(required=True,
                                 description='Quantity of the product'),
     'price': fields.String(required=True,
                               description='Price'),
@@ -136,9 +136,9 @@ class shopcartsCollection(Resource):
     @api.doc('shopcart_list')
     @api.expect(shopcart_item_args, validate=True)
     @api.response(404,'No items for this customer')
-    @api.marshal_with(shopcart_model)
-    #@app.route('/shopcarts/<int:customer_id>', methods=['GET'])
-    def get(customer_id):
+    @api.marshal_list_with(shopcart_model)
+    # @app.route('/shopcarts/<int:customer_id>', methods=['GET'])
+    def get(self, customer_id):
         """ Returns list of all of the shop cart items"""
         if request.args.get('price') == None:
             app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
@@ -147,20 +147,22 @@ class shopcartsCollection(Resource):
             results = [item.serialize() for item in items]
             if results is None or len(results) == 0:
                 api.abort(404, "No items for this customer.")
-            return make_response(jsonify(results), status.HTTP_200_OK)
+            return results, status.HTTP_200_OK
 
-        else:    
+        else:
             target_price = request.args.get('price')
+            print(target_price)
             app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
             items = []
             items = Shopcart.query_by_target_price(customer_id, target_price)
             results = [item.serialize() for item in items]
+            print(results)
             if results is None or len(results) == 0:
                 api.abort(404, "No items for this customer.")
-            return make_response(jsonify(results), status.HTTP_200_OK)
+            return results, status.HTTP_200_OK
 
 ######################################################################
-# RETRIEVE AN ITEM
+# RETRIEVE AN ITEM  
 ######################################################################
 @app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['GET'])
 def get_cart_item(customer_id, product_id):
