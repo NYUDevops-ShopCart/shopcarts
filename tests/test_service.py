@@ -166,19 +166,22 @@ class TestShopcartServer(unittest.TestCase):
         # create an item 
         test_item = ShopcartFactory()
         resp = self.app.post('/shopcarts/{}'.format(test_item.customer_id), json=test_item.serialize(), content_type='application/json')
-        print(test_item.quantity)
         data = resp.get_json()
-        print(data)
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED, 'Could not create shopcart entry')
         self.assertEqual(data['customer_id'], test_item.customer_id, 'cutsomer_id not the same')
         self.assertEqual(data['product_id'], test_item.product_id, 'product_id not the same')
         self.assertEqual(data['quantity'], test_item.quantity, 'quantity not the same')
         self.assertEqual(data['text'], test_item.text, 'text not the same')
         test_item.quantity += 1
-        # create again to update item 
-        print(test_item.quantity)
+        # create again to update item
         resp = self.app.post('/shopcarts/{}'.format(test_item.customer_id), json=test_item.serialize(), content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+
+    def test_create_shopcart_id_not_match(self):
+        test_item = ShopcartFactory()
+        resp = self.app.post('/shopcarts/{}'.format(test_item.customer_id + 1), json=test_item.serialize(), content_type='application/json')
+        data = resp.get_json()
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST, "Coustomer id doesn't match")
 
     def test_retrieve_shopcart(self):
         """ Retrieve the item from the shopcart """

@@ -152,7 +152,6 @@ def list_cart_iterms(customer_id):
 class ShopcartItem(Resource):
     @api.doc('get_shopcart_item')
     @api.response(404, 'Item not found')
-    @api.marshal_with(shopcart_model)
     def get(self, customer_id, product_id):
         """
         Retrieve a single shop cart item
@@ -175,16 +174,18 @@ class ShopcartResource(Resource):
     @api.expect(create_model)
     @api.response(400, "Coustomer id doesn't match")
     @api.response(409, 'Item already in the cart')
-    @api.marshal_with(create_model, code=201)
     def post(self, customer_id):
         """
         Creates a new item entry for the cart
         """
         app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
+        check_content_type('application/json')
         if not customer_id == int(api.payload['customer_id']):
             app.logger.info("Coustomer id doesn't match")
             abort(400, description="Coustomer id doesn't match")
         product_id = api.payload['product_id']
+        if Shopcart.check_cart_exist(customer_id, product_id):
+            abort(409, description="Item already in the cart")
         shopcart = Shopcart()
         shopcart.deserialize(api.payload)
         shopcart.save()
