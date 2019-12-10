@@ -129,8 +129,8 @@ shopcart_args.add_argument('price', type=float, required=False, help='List shocp
 ######################################################################
 @api.route('/shopcarts/<int:customer_id>', strict_slashes=False)
 @api.param('customer_id', 'Customer Identifier')
-class shopcartsCollection(Resource):
-    """ Handles all interactions with collections of Shopcarts """
+class ShopcartsItem(Resource):
+    """ Handles all interactions with items of Shopcarts """
     @api.doc('shopcart_list')
     @api.expect(shopcart_args, validate=True)
     #@api.response(404,'No items for this customer')
