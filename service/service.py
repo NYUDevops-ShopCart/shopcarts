@@ -21,55 +21,55 @@ ORDER_HOST_URL = "http://localhost:1234"
 ######################################################################
 # Error Handlers
 ######################################################################
-@app.errorhandler(DataValidationError)
-def request_validation_error(error):
-    """ Handles Value Errors from bad data """
-    return bad_request(error)
+# @app.errorhandler(DataValidationError)
+# def request_validation_error(error):
+#     """ Handles Value Errors from bad data """
+#     return bad_request(error)
 
-@app.errorhandler(status.HTTP_400_BAD_REQUEST)
-def bad_request(error):
-    """ Handles bad reuests with 400_BAD_REQUEST """
-    message = str(error)
-    app.logger.warning(message)
-    return jsonify(status=status.HTTP_400_BAD_REQUEST,
-                   error='Bad Request',
-                   message=message), status.HTTP_400_BAD_REQUEST
+# @app.errorhandler(status.HTTP_400_BAD_REQUEST)
+# def bad_request(error):
+#     """ Handles bad reuests with 400_BAD_REQUEST """
+#     message = str(error)
+#     app.logger.warning(message)
+#     return jsonify(status=status.HTTP_400_BAD_REQUEST,
+#                    error='Bad Request',
+#                    message=message), status.HTTP_400_BAD_REQUEST
 
-@app.errorhandler(status.HTTP_404_NOT_FOUND)
-def not_found(error):
-    """ Handles resources not found with 404_NOT_FOUND """
-    message = str(error)
-    app.logger.warning(message)
-    return jsonify(status=status.HTTP_404_NOT_FOUND,
-                   error='Not Found',
-                   message=message), status.HTTP_404_NOT_FOUND
+# @app.errorhandler(status.HTTP_404_NOT_FOUND)
+# def not_found(error):
+#     """ Handles resources not found with 404_NOT_FOUND """
+#     message = str(error)
+#     app.logger.warning(message)
+#     return jsonify(status=status.HTTP_404_NOT_FOUND,
+#                    error='Not Found',
+#                    message=message), status.HTTP_404_NOT_FOUND
 
-@app.errorhandler(status.HTTP_405_METHOD_NOT_ALLOWED)
-def method_not_supported(error):
-    """ Handles unsuppoted HTTP methods with 405_METHOD_NOT_SUPPORTED """
-    message = str(error)
-    app.logger.warning(message)
-    return jsonify(status=status.HTTP_405_METHOD_NOT_ALLOWED,
-                   error='Method not Allowed',
-                   message=message), status.HTTP_405_METHOD_NOT_ALLOWED
+# @app.errorhandler(status.HTTP_405_METHOD_NOT_ALLOWED)
+# def method_not_supported(error):
+#     """ Handles unsuppoted HTTP methods with 405_METHOD_NOT_SUPPORTED """
+#     message = str(error)
+#     app.logger.warning(message)
+#     return jsonify(status=status.HTTP_405_METHOD_NOT_ALLOWED,
+#                    error='Method not Allowed',
+#                    message=message), status.HTTP_405_METHOD_NOT_ALLOWED
 
-@app.errorhandler(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-def mediatype_not_supported(error):
-    """ Handles unsuppoted media requests with 415_UNSUPPORTED_MEDIA_TYPE """
-    message = str(error)
-    app.logger.warning(message)
-    return jsonify(status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                   error='Unsupported media type',
-                   message=message), status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
+# @app.errorhandler(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+# def mediatype_not_supported(error):
+#     """ Handles unsuppoted media requests with 415_UNSUPPORTED_MEDIA_TYPE """
+#     message = str(error)
+#     app.logger.warning(message)
+#     return jsonify(status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+#                    error='Unsupported media type',
+#                    message=message), status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
 
-@app.errorhandler(status.HTTP_500_INTERNAL_SERVER_ERROR)
-def internal_server_error(error):
-    """ Handles unexpected server error with 500_SERVER_ERROR """
-    message = str(error)
-    app.logger.error(message)
-    return jsonify(status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                   error='Internal Server Error',
-                   message=message), status.HTTP_500_INTERNAL_SERVER_ERROR
+# @app.errorhandler(status.HTTP_500_INTERNAL_SERVER_ERROR)
+# def internal_server_error(error):
+#     """ Handles unexpected server error with 500_SERVER_ERROR """
+#     message = str(error)
+#     app.logger.error(message)
+#     return jsonify(status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#                    error='Internal Server Error',
+#                    message=message), status.HTTP_500_INTERNAL_SERVER_ERROR
 
 ######################################################################
 # GET INDEX
@@ -162,50 +162,54 @@ class ShopcartItem(Resource):
 ######################################################################
 # RETRIEVE AN ITEM
 ######################################################################
-@app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['GET'])
-def get_cart_item(customer_id, product_id):
-
-    """
-    Retrieve a single shop cart item
-    """
-    app.logger.info('Request for shopcart item with customer %s, product %s...',
+@api.route('/shopcarts/<int:customer_id>/<int:product_id>', strict_slashes=False)
+@api.param('customer_id','Customer Identifier')
+@api.param('product_id','Product Identifier')
+class ShopcartItem(Resource):
+    @api.doc('get_shopcart_item')
+    @api.response(404, 'Item not found')
+    def get(self, customer_id, product_id):
+        """
+        Retrieve a single shop cart item
+        """
+        app.logger.info('Request for shopcart item with customer %s, product %s...',
                     customer_id, product_id)
-    item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
-    if item:
-        return make_response(jsonify(item.serialize()), status.HTTP_200_OK)
-    return make_response(jsonify({"error": " Product not in cart"}), status.HTTP_404_NOT_FOUND)
-
+        item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+        if item:
+            return item.serialize(), status.HTTP_200_OK
+        api.abort(status.HTTP_404_NOT_FOUND, "Product not in cart")
+        
 
 ######################################################################
 # ADD A NEW ITEM TO THE SHOP CART
 ######################################################################
-@app.route('/shopcarts/<int:customer_id>', methods=['POST'])
-def create_cart_item(customer_id):
+@api.route('/shopcarts/<int:customer_id>', strict_slashes=False)
+@api.param('customer_id','Customer Identifier')
+class ShopcartResource(Resource):
+    @api.doc('create_item')
+    @api.expect(create_model)
+    @api.response(400, "Coustomer id doesn't match")
+    @api.response(409, 'Item already in the cart')
+    def post(self, customer_id):
+        """
+        Creates a new item entry for the cart
+        """
+        app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
+        check_content_type('application/json')
+        if not customer_id == int(api.payload['customer_id']):
+            app.logger.info("Coustomer id doesn't match")
+            abort(400, description="Coustomer id doesn't match")
+        product_id = api.payload['product_id']
+        if Shopcart.check_cart_exist(customer_id, product_id):
+            abort(409, description="Item already in the cart")
+        shopcart = Shopcart()
+        shopcart.deserialize(api.payload)
+        shopcart.save()
+        location_url = api.url_for(ShopcartItem, customer_id = customer_id,
+                                    product_id = product_id, _extrenal = True)
+        return shopcart.serialize(), status.HTTP_201_CREATED, {'Location': location_url}
 
-    """
-    Creates a new item entry for the cart
-    """
-    app.logger.info('Request to create shopcart item for costomer: %s', customer_id)
-    check_content_type('application/json')
-    # check if coustomer_id are the same
-    if not customer_id == int(request.get_json()['customer_id']):
-        # abort(400, description="coustomer id doesn't match")
-        app.logger.info("coustomer id doesn't match")
-        return make_response("coustomer id doesn't match", status.HTTP_400_BAD_REQUEST)
-    product_id = request.get_json()['product_id']
-    shopcart = Shopcart()
-    # check if the item is already in this customer's cart
-    if Shopcart.check_cart_exist(customer_id, product_id):
-        # abort(409, description="item already in the cart")
-        return make_response("item already in the cart", status.HTTP_409_CONFLICT)
-    shopcart.deserialize(request.get_json())
-    shopcart.save()
-    message = shopcart.serialize()
-    location_url = url_for('get_cart_item', customer_id=customer_id, product_id=product_id)
-    return make_response(jsonify(message), status.HTTP_201_CREATED,
-                         {
-                             'Location': location_url
-                         })
+
 
 ######################################################################
 # UPDATE AN EXISTING SHOPCART ITEM
@@ -235,17 +239,30 @@ def update_cart_item(customer_id, product_id, requested_quantity=None):
 ######################################################################
 # DELETE A SHOPCART ITEM
 ######################################################################
-@app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['DELETE'])
-def delete_cart_item(customer_id, product_id):
-    app.logger.info('Request to delete an existing shopcart item with customer id: %s and product_id: %s',
-                    customer_id, product_id)
-    cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+@api.route('/shopcarts/<int:customer_id>/<int:product_id>',strict_slashes=False)
+@api.param('customer_id','Customer Identifier')
+@api.param('product_id','Product Identifier')
+class ShopcartResource(Resource):
+    #------------------------------------------------------------------
+    # DELETE A Shopcart Item 
+    #------------------------------------------------------------------
+    @api.doc('shopcart_delete')
+    @api.response(204,'Item deleted')
+    def delete(self, customer_id, product_id):
+        """
+        Delete an item from shopcart
 
-    if cart_item:
-        app.logger.info('Found item with customer id and product id and it will be deleted')
-        cart_item.delete()
-    # should return 204 whether item is found or not found as discussed in class
-    return make_response('', status.HTTP_204_NO_CONTENT)
+        This endpoint will delete a item for the selected product in the shopcart
+        """
+        app.logger.info('Request to delete an existing shopcart item with customer id: %s and product_id: %s',
+                    customer_id, product_id)
+        cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+
+        if cart_item:
+            app.logger.info('Found item with customer id and product id and it will be deleted')
+            cart_item.delete()
+        # should return 204 whether item is found or not found as discussed in class
+        return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 # MOVE A SHOPCART ITEM TO CHECKOUT
