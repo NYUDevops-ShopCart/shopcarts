@@ -144,7 +144,7 @@ def list_cart_iterms(customer_id):
         return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
-# RETRIEVE AN ITEM
+# RETRIEVE, DELETE
 ######################################################################
 @api.route('/shopcarts/<int:customer_id>/<int:product_id>', strict_slashes=False)
 @api.param('customer_id','Customer Identifier')
