@@ -73,14 +73,14 @@ $(function () {
 
         var customer_id = $("#customer_id").val();
         var product_id = $("#product_id").val();
-        var item_text = $("#item_text").val();
+        var text = $("#text").val();
         var quantity = $("#quantity").val();
         var price = $("#price").val();
 
         var data = {
            "customer_id": customer_id,
             "product_id": product_id,
-            "item_text": item_text,
+            "text": text,
             "quantity": quantity,
             "price": price
         };

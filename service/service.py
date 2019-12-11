@@ -126,7 +126,7 @@ shopcart_args = reqparse.RequestParser()
 shopcart_args.add_argument('price', type=float, required=False, help='List shocpart items (cheapter than target_price if there exists one)')
 
 ######################################################################
-# RETRIEVE; DELETE
+# RETRIEVE; DELETE; UPDATE
 ######################################################################
 @api.route('/shopcarts/<int:customer_id>/<int:product_id>', strict_slashes=False)
 @api.param('customer_id','Customer Identifier')
@@ -168,10 +168,58 @@ class ShopcartItem(Resource):
             cart_item.delete()
         # should return 204 whether item is found or not found as discussed in class
         return make_response('', status.HTTP_204_NO_CONTENT)
+
+    #------------------------------------------------------------------
+    # UPDATE AN EXISTING PET
+    #------------------------------------------------------------------
+    @api.doc('shopcart_update')
+    @api.response(200,'Product Updated Successfully')
+    @api.response(400,'Invalid Request')
+    @api.expect(shopcart_model)
+    #@api.marshal_with(shopcart_model)
+    def put(self, customer_id, product_id):
+        """
+        Update an item from shopcart
+        This endpoint will update a item for the selected product in the shopcart
+        """
+        app.logger.info('Request to update shopcart item with customer_id: %s, product_id: %s', customer_id, product_id)
+        cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+        
+        if not cart_item:
+            app.logger.info("Customer_id and product_id for update have not been found")
+            api.abort(status.HTTP_400_BAD_REQUEST, 'No product with id [{}] found for customer id [{}].'
+                .format(product_id,customer_id))
+
+        app.logger.debug('Payload = %s', api.payload)
+        data = api.payload
+        update_cart_item = Shopcart()
+        update_cart_item.deserialize(data)
+
+        try:
+            requested_quantity = int(update_cart_item.quantity)
+            app.logger.info("requested_quantity = %s", requested_quantity)
+        except ValueError:
+            app.logger.info('Non-integer quantity requested')
+            api.abort(status.HTTP_400_BAD_REQUEST, 'Non-integer quantity given')
+        
+        # bounds check
+        if requested_quantity < 1:
+            app.logger.info('Negative quantity requested')
+            api.abort(status.HTTP_400_BAD_REQUEST, 'No positive product with id [{}] found for customer id [{}].'
+                .format(product_id,customer_id))
+    
+        # process to update the request
+        cart_item.quantity = requested_quantity
+        app.logger.info("cart_item.quantity = %s", cart_item.quantity)
+        cart_item.state = SHOPCART_ITEM_STAGE['ADDED']
+        cart_item.save()
+        app.logger.info('Quantity for customer id %s and product id %s has been updated',
+                    customer_id, product_id)
+        return cart_item.serialize(), status.HTTP_200_OK
         
 
 ######################################################################
-# CREATE; LIST
+# CREATE; LIST; QUERY
 ######################################################################
 @api.route('/shopcarts/<int:customer_id>', strict_slashes=False)
 @api.param('customer_id','Customer Identifier')
@@ -225,33 +273,6 @@ class ShopcartResource(Resource):
             #if results is None or len(results) == 0:
             #    api.abort(404, "No items for this customer.")
             return results, status.HTTP_200_OK
-
-
-######################################################################
-# UPDATE AN EXISTING SHOPCART ITEM
-######################################################################
-@app.route('/shopcarts/<int:customer_id>/<int:product_id>', methods=['PUT'])
-def update_cart_item(customer_id, product_id, requested_quantity=None):
-    app.logger.info('Request to update shopcart item with customer_id: %s, product_id: %s',
-                    customer_id, product_id)
-    cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
-    if not cart_item:
-        app.logger.info("Customer_id and product_id for update have not been found")
-        return jsonify({'message': "Customer_id and product_id for update have not been found"
-                       }), status.HTTP_400_BAD_REQUEST
-    if requested_quantity is None:
-        requested_quantity = int(request.get_json()["quantity"])
-    # bounds check
-    if requested_quantity < 1:
-        app.logger.info('Negative quantity requested')
-        return jsonify({'message': "Invalid quantity"}), status.HTTP_400_BAD_REQUEST
-    # process to update the request
-    cart_item.quantity = requested_quantity
-    cart_item.save()
-    app.logger.info('Quantity for customer id %s and product id %s has been updated',
-                    customer_id, product_id)
-    return make_response(cart_item.serialize(), status.HTTP_200_OK)
-
 
 ######################################################################
 # MOVE A SHOPCART ITEM TO CHECKOUT
