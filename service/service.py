@@ -124,48 +124,17 @@ create_model = api.model('Shopcart', {
 
 shopcart_args = reqparse.RequestParser()
 shopcart_args.add_argument('price', type=float, required=False, help='List shocpart items (cheapter than target_price if there exists one)')
-######################################################################
-# LIST ALL ITEMS IN ONE SHOP CART ---
-######################################################################
-@api.route('/shopcarts/<int:customer_id>', strict_slashes=False)
-@api.param('customer_id', 'Customer Identifier')
-class ShopcartItem(Resource):
-    """ Handles all interactions with items of Shopcarts """
-    @api.doc('shopcart_list')
-    @api.expect(shopcart_args, validate=True)
-    #@api.response(404,'No items for this customer')
-    @api.marshal_list_with(shopcart_model)
-    # @app.route('/shopcarts/<int:customer_id>', methods=['GET'])
-    def get(self, customer_id):
-        """ Returns list of all of the shop cart items"""
-        if request.args.get('price') == None:
-            app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
-            items = []
-            items = Shopcart.find_by_customer_id(customer_id)
-            results = [item.serialize() for item in items]
-            #if results is None or len(results) == 0:
-            #    api.abort(404, "No items for this customer.")
-            return results, status.HTTP_200_OK
-
-        else:
-            target_price = request.args.get('price')
-            print(target_price)
-            app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
-            items = []
-            items = Shopcart.query_by_target_price(customer_id, target_price)
-            results = [item.serialize() for item in items]
-            print(results)
-            #if results is None or len(results) == 0:
-            #    api.abort(404, "No items for this customer.")
-            return results, status.HTTP_200_OK
 
 ######################################################################
-# RETRIEVE AN ITEM
+# RETRIEVE; DELETE
 ######################################################################
 @api.route('/shopcarts/<int:customer_id>/<int:product_id>', strict_slashes=False)
 @api.param('customer_id','Customer Identifier')
 @api.param('product_id','Product Identifier')
 class ShopcartItem(Resource):
+    #------------------------------------------------------------------
+    # Retrieve A Shopcart Item 
+    #------------------------------------------------------------------
     @api.doc('get_shopcart_item')
     @api.response(404, 'Item not found')
     def get(self, customer_id, product_id):
@@ -178,10 +147,31 @@ class ShopcartItem(Resource):
         if item:
             return item.serialize(), status.HTTP_200_OK
         api.abort(status.HTTP_404_NOT_FOUND, "Product not in cart")
+
+    #------------------------------------------------------------------
+    # DELETE A Shopcart Item 
+    #------------------------------------------------------------------
+    @api.doc('shopcart_delete')
+    @api.response(204,'Item deleted')
+    def delete(self, customer_id, product_id):
+        """
+        Delete an item from shopcart
+
+        This endpoint will delete a item for the selected product in the shopcart
+        """
+        app.logger.info('Request to delete an existing shopcart item with customer id: %s and product_id: %s',
+                    customer_id, product_id)
+        cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
+
+        if cart_item:
+            app.logger.info('Found item with customer id and product id and it will be deleted')
+            cart_item.delete()
+        # should return 204 whether item is found or not found as discussed in class
+        return make_response('', status.HTTP_204_NO_CONTENT)
         
 
 ######################################################################
-# ADD A NEW ITEM TO THE SHOP CART
+# CREATE; LIST
 ######################################################################
 @api.route('/shopcarts/<int:customer_id>', strict_slashes=False)
 @api.param('customer_id','Customer Identifier')
@@ -209,6 +199,32 @@ class ShopcartResource(Resource):
                                     product_id = product_id, _extrenal = True)
         return shopcart.serialize(), status.HTTP_201_CREATED, {'Location': location_url}
 
+    @api.doc('shopcart_list')
+    @api.expect(shopcart_args, validate=True)
+    @api.marshal_list_with(shopcart_model)
+    # @app.route('/shopcarts/<int:customer_id>', methods=['GET'])
+    def get(self, customer_id):
+        """ Returns list of all of the shop cart items"""
+        if request.args.get('price') == None:
+            app.logger.info('Request to list all items in shopcart with customer_id: %s', customer_id)
+            items = []
+            items = Shopcart.find_by_customer_id(customer_id)
+            results = [item.serialize() for item in items]
+            #if results is None or len(results) == 0:
+            #    api.abort(404, "No items for this customer.")
+            return results, status.HTTP_200_OK
+
+        else:
+            target_price = request.args.get('price')
+            print(target_price)
+            app.logger.info('Request to query all items in shopcart with customer_id: %s', customer_id)
+            items = []
+            items = Shopcart.query_by_target_price(customer_id, target_price)
+            results = [item.serialize() for item in items]
+            print(results)
+            #if results is None or len(results) == 0:
+            #    api.abort(404, "No items for this customer.")
+            return results, status.HTTP_200_OK
 
 
 ######################################################################
@@ -236,33 +252,6 @@ def update_cart_item(customer_id, product_id, requested_quantity=None):
                     customer_id, product_id)
     return make_response(cart_item.serialize(), status.HTTP_200_OK)
 
-######################################################################
-# DELETE A SHOPCART ITEM
-######################################################################
-@api.route('/shopcarts/<int:customer_id>/<int:product_id>',strict_slashes=False)
-@api.param('customer_id','Customer Identifier')
-@api.param('product_id','Product Identifier')
-class ShopcartResource(Resource):
-    #------------------------------------------------------------------
-    # DELETE A Shopcart Item 
-    #------------------------------------------------------------------
-    @api.doc('shopcart_delete')
-    @api.response(204,'Item deleted')
-    def delete(self, customer_id, product_id):
-        """
-        Delete an item from shopcart
-
-        This endpoint will delete a item for the selected product in the shopcart
-        """
-        app.logger.info('Request to delete an existing shopcart item with customer id: %s and product_id: %s',
-                    customer_id, product_id)
-        cart_item = Shopcart.find_by_customer_id_and_product_id(customer_id, product_id)
-
-        if cart_item:
-            app.logger.info('Found item with customer id and product id and it will be deleted')
-            cart_item.delete()
-        # should return 204 whether item is found or not found as discussed in class
-        return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 # MOVE A SHOPCART ITEM TO CHECKOUT
