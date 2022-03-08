@@ -12,7 +12,7 @@ factory-boy==2.12.0
 
 # Runtime 
 honcho==1.0.1
-httpie==1.0.3
+httpie==3.1.0
 gunicorn==19.9.0
 
 # Test Driven Development
