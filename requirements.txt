@@ -24,7 +24,7 @@ pinocchio==0.4.2
 behave==1.2.6
 selenium==3.141.0
 compare==0.2b0
-requests==2.22.0
+requests==2.31.0
 
 # runtime
 
